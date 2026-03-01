@@ -1,10 +1,12 @@
-import fetchTVData from "./fetchTVData.js";
+import { fetchShows, fetchEpisodes } from "./fetchTVData.js";
 
 async function setup() {
-    const data = await fetchTVData();
-    makePageForEpisodes(data);
-    selectEpSetup(data);
-    searchEpisodes(data);
+    selectShowsSetup();
+
+    // const data = await fetchEpisodes();
+    // makePageForEpisodes(data);
+    // selectEpSetup(data);
+    // searchEpisodes(data);
 }
 
 function makePageForEpisodes(episodeList) {
@@ -27,6 +29,18 @@ function makePageForEpisodes(episodeList) {
     });
 
     rootElem.replaceChildren(...allEpisodeCards);
+}
+
+async function selectShowsSetup() {
+    const showList = await fetchShows();
+    const showSelect = document.getElementById("select-show");
+    const showOpts = showList.map((sh) => {
+        const opt = document.createElement("option");
+        opt.value = sh.id;
+        opt.textContent = sh.name;
+        return opt;
+    });
+    showSelect.append(...showOpts);
 }
 
 function searchEpisodes(episodeList) {
