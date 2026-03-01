@@ -21,6 +21,10 @@ header {
     top: 0;
 }
 
+header > h1 {
+    cursor: pointer;
+}
+
 .find-episodes {
     display: flex;
     align-items: center;

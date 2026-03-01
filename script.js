@@ -16,26 +16,30 @@ const getEpisodes = (() => {
     };
 })();
 
-// getEpisodes(82).then(console.log); works
-
 async function setup() {
     const shows = await fetchShows();
     renderShowCards(shows);
+    homePageButton(shows);
+}
 
-    // selectShowsSetup(shows);
+function homePageButton(showList) {
+    const header = document.querySelector("header");
+    const logo = header.querySelector("h1");
+    logo.addEventListener("click", () => renderShowCards(showList));
 }
 
 function renderShowCards(showList) {
     const showCards = buildShowCards(showList);
     const showCardContainer = document.getElementById("show-cards-container");
+    const episodeCardContainer = document.getElementById(
+        "episode-cards-container",
+    );
+
+    // shows the show cards and hides the episode cards
     showCardContainer.classList.remove("hidden");
     showCardContainer.replaceChildren(
         showCardContainer.firstElementChild,
         ...showCards,
-    );
-
-    const episodeCardContainer = document.getElementById(
-        "episodes-cards-container",
     );
     episodeCardContainer.classList.add("hidden");
 }
@@ -47,9 +51,10 @@ function buildShowCards(showList) {
 
         const title = clone.querySelector(".show-title");
         title.textContent = show.name;
-        title.addEventListener("click", handleShowClick);
+        title.addEventListener("click", () => handleShowClick(show.id));
 
-        clone.querySelector(".show-img").src = show.image.medium;
+        clone.querySelector(".show-img").src = show.image?.medium;
+        clone.querySelector(".show-img").alt = show.name;
         clone.querySelector(".show-summary").innerHTML = show.summary;
         clone.querySelector(".rating").textContent =
             `rating: ${show.rating.average}`;
@@ -61,39 +66,49 @@ function buildShowCards(showList) {
     return showCards;
 }
 
-function handleShowClick() {
-    return;
+// on click:
+// get episodes for the show
+// hide shows container
+// populate episodes container with episode cards
+// show episodes container
+// show a back button which just hides the
+// episodes container and shows the shows container
+async function handleShowClick(showId) {
+    alert("clicked on show: " + showId);
+    const episodes = await getEpisodes(showId);
+    renderEpisodeCards(episodes);
 }
 
-// populate shows selector, and attack event handler
-async function selectShowsSetup(showList) {
-    const showSelect = document.getElementById("select-show");
-    const showOpts = showList.map((sh) => {
-        const opt = document.createElement("option");
-        opt.value = sh.id;
-        opt.textContent = sh.name;
-        return opt;
+function buildEpisodeCards(episodeList) {
+    const template = document.getElementById("episode-card-template");
+    const cards = episodeList.map((episode) => {
+        const clone = template.content.cloneNode(true);
+        const title = `${episode.name} - S${String(episode.season).padStart(2, "0")}E${String(episode.number).padStart(2, "0")}`;
+        clone.querySelector(".episode-title-container").textContent = title;
+        clone.querySelector(".episode-img").src = episode.image?.medium;
+        clone.querySelector(".episode-img").alt = episode.name;
+        clone.querySelector(".episode-desc").textContent =
+            episode.summary.replace(/<[^>]*>/g, "");
+
+        return clone;
     });
-    showSelect.append(...showOpts);
-    showSelect.addEventListener("input", handleSelectShow);
+    return cards;
 }
 
-// populate episode selector based on selected show
-// create and show cards for all episodes of show
-// set up search input, which searches episodes of given show
-async function handleSelectShow(event) {
-    const showId = event.target.value;
-    if (showId !== "none") {
-        const episodesList = await fetchEpisodes(showId);
-        console.log("calling select Episodes setup");
-        selectEpisodesSetup(episodesList);
-        makePageForEpisodes(episodesList);
-        searchEpisodes(episodesList);
-    } else {
-        selectEpisodesSetup([]);
-        makePageForEpisodes([]);
-        searchEpisodes([]);
-    }
+function renderEpisodeCards(episodeList) {
+    const episodesContainer = document.getElementById(
+        "episode-cards-container",
+    );
+    const showsContainer = document.getElementById("show-cards-container");
+    showsContainer.classList.add("hidden");
+
+    const cards = buildEpisodeCards(episodeList);
+
+    const wrapper = episodesContainer.querySelector("#show-cards");
+    wrapper.replaceChildren(...cards);
+    episodesContainer.classList.remove("hidden");
+    selectEpisodesSetup(episodeList);
+    searchEpisodes(episodeList);
 }
 
 function selectEpisodesSetup(episodesList) {
@@ -127,14 +142,14 @@ function handleSelectEpisode(event, episodesList) {
         document.getElementById("undo-selected-episode").hidden = false;
 
         // undo selection of single episode
-        const undoSingleEpSelection = document.getElementById(
-            "undo-selected-episode",
-        );
+        // const undoSingleEpSelection = document.getElementById(
+        //     "undo-selected-episode",
+        // );
 
-        undoSingleEpSelection.addEventListener("click", () => {
-            makePageForEpisodes(episodesList);
-            undoSingleEpSelection.hidden = true;
-        });
+        // undoSingleEpSelection.addEventListener("click", () => {
+        //     makePageForEpisodes(episodesList);
+        //     undoSingleEpSelection.hidden = true;
+        // });
     }
 }
 
