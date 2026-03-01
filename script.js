@@ -57,7 +57,7 @@ function selectEpSetup(episodeList) {
     const selecElem = document.getElementById("select-episodes");
     const selectOpts = episodeList.map((ep) => {
         const opt = document.createElement("option");
-        opt.value = ep.name;
+        opt.value = ep.id;
         const title = `S${String(ep.season).padStart(2, "0")}E${String(ep.number).padStart(2, "0")} - ${ep.name}`;
         opt.textContent = title;
         return opt;
@@ -65,11 +65,19 @@ function selectEpSetup(episodeList) {
 
     selecElem.append(...selectOpts);
 
-    selecElem.addEventListener("input", showSelectedEpisode);
+    selecElem.addEventListener("input", (e) =>
+        showSelectedEpisode(e, episodeList),
+    );
 }
 
-function showSelectedEpisode(event) {
+function showSelectedEpisode(event, episodeList) {
     const val = event.target.value;
+    if (val === "none") {
+        makePageForEpisodes(episodeList);
+    } else {
+        const singleEp = episodeList.filter((item) => item.id == val);
+        makePageForEpisodes(singleEp);
+    }
 }
 
 window.onload = setup;
