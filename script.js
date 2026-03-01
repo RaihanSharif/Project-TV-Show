@@ -5,7 +5,7 @@ function setup() {
 }
 
 function makePageForEpisodes(episodeList) {
-    const rootElem = document.querySelector("main");
+    const rootElem = document.querySelector("#card-container");
     const template = document.getElementById("episode-card-template");
     const allEpisodeCards = episodeList.map((ep) => {
         const clone = template.content.cloneNode(true);
