@@ -20,13 +20,14 @@ header {
     justify-content: space-between;
     background-color: darkblue;
     color: white;
+    position: sticky;
+    top: 0;
 }
 
 .find-episodes {
     display: flex;
-    flex-direction: column;
     gap: 0.5rem;
-    align-items: stretch;
+    align-items: center;
 }
 
 .find-episodes input,
