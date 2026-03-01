@@ -1,7 +1,7 @@
 // function to fetch data from API.
 
 export async function fetchEpisodes(showId) {
-    const url = `https://api.tvmaze.com/shows/${82}/episodes`;
+    const url = `https://api.tvmaze.com/shows/${showId}/episodes`;
 
     try {
         const response = await fetch(url);
