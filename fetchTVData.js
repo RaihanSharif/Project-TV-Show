@@ -11,7 +11,7 @@ async function fetchTVData() {
 
         return await response.json();
     } catch (error) {
-        console.error(error);
+        alert(`There was an error fetching the data ${error}`);
     }
 }
 

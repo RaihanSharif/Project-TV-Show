@@ -20,6 +20,7 @@ header {
     color: white;
     position: sticky;
     top: 0;
+    flex-wrap: wrap;
 }
 
 .find-episodes {
@@ -93,8 +94,12 @@ footer > a {
     text-align: center;
 }
 
-@media (max-width: 500px) {
+@media (max-width: 600px) {
     main {
         padding: 0.5rem;
+    }
+
+    header {
+        flex-direction: column;
     }
 }

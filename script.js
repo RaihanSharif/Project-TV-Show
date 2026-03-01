@@ -3,6 +3,8 @@ import fetchTVData from "./fetchTVData.js";
 async function setup() {
     const data = await fetchTVData();
     makePageForEpisodes(data);
+    selectEpSetup(data);
+    searchEpisodes(data);
 }
 
 function makePageForEpisodes(episodeList) {
@@ -27,8 +29,7 @@ function makePageForEpisodes(episodeList) {
     rootElem.replaceChildren(...allEpisodeCards);
 }
 
-/*
-            function searchEpisodes(episodeList) {
+function searchEpisodes(episodeList) {
     const searchInput = document.getElementById("search-input");
     const resultCount = document.getElementById("result-count");
     searchInput.addEventListener("input", (event) => {
@@ -90,5 +91,4 @@ function showSelectedEpisode(event, episodeList) {
     }
 }
 
-*/
 window.onload = setup;

@@ -9,30 +9,37 @@
         <link
             href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap"
             rel="stylesheet" />
-        <script src="script.js" type="module" defer></script>
+        <script src="script.js" type="module"></script>
     </head>
 
     <body>
         <header>
             <h1>CYF</h1>
-            <div id="select-episode-container" class="find-episodes">
-                <!-- <label for="select-episodes">Select a specifc episode: </label> -->
-                <select name="select-episodes" id="select-episodes">
-                    <option value="none" selected>
-                        -- Please select an episode to see --
-                    </option>
-                </select>
-                <button id="undo-selected-episode" hidden>Show all</button>
-            </div>
-            <div id="search-container" class="find-episodes">
-                <label for="search-input">Search: </label>
-                <input type="search" name="search-input" id="search-input" />
-                <span id="result-count"></span>
+            <div>
+                <div id="search-container" class="find-episodes">
+                    <label for="search-input">Search: </label>
+                    <input
+                        type="search"
+                        name="search-input"
+                        id="search-input" />
+                    <span id="result-count"></span>
+                </div>
+                <div id="select-episode-container" class="find-episodes">
+                    <!-- <label for select not necessary if default option explains the use </label> -->
+                    <select name="select-episodes" id="select-episodes">
+                        <option value="none" selected>
+                            -- Please select an episode to see --
+                        </option>
+                    </select>
+                    <button id="undo-selected-episode" hidden>Show all</button>
+                </div>
             </div>
         </header>
         <main>
             <h1>Browse and search tv shows.</h1>
-            <div id="card-container"></div>
+            <div id="card-container">
+                <h2>Loading episode data...</h2>
+            </div>
         </main>
         <template id="episode-card-template">
             <div class="episode-card">
