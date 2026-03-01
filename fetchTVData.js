@@ -9,11 +9,9 @@ async function fetchTVData() {
             throw new Error(`Response status: ${response.status}`);
         }
 
-        const result = await response.json();
-        console.log(result);
+        return await response.json();
     } catch (error) {
         console.error(error);
-        return null;
     }
 }
 
