@@ -1,10 +1,15 @@
-//You can edit ALL of the code here
-function setup() {
-    const allEpisodes = getAllEpisodes();
-    makePageForEpisodes(allEpisodes);
-    searchEpisodes(allEpisodes);
-    selectEpSetup(allEpisodes);
+import fetchTVData from "./fetchTVData.js";
+
+async function setup() {
+    const data = await fetchTVData();
+    console.log(data);
+    // const allEpisodes = getAllEpisodes();
+    // makePageForEpisodes(allEpisodes);
+    // searchEpisodes(allEpisodes);
+    // selectEpSetup(allEpisodes);
 }
+
+/*
 
 function makePageForEpisodes(episodeList) {
     const rootElem = document.querySelector("#card-container");
@@ -90,4 +95,5 @@ function showSelectedEpisode(event, episodeList) {
     }
 }
 
+*/
 window.onload = setup;
