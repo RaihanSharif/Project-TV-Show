@@ -1,6 +1,25 @@
 import { fetchShows, fetchEpisodes } from "./fetchTVData.js";
 
+// Use closure to enclose the cache so it's only accessible
+// through the getEpisodes() function. Reduce access, reduce corrption risk
+const getEpisodes = (() => {
+    const cache = {};
+
+    return async function (showId) {
+        if (!cache[showId]) {
+            const response = await fetch(
+                `https://api.tvmaze.com/shows/${showId}/episodes`,
+            );
+            cache[showId] = await response.json();
+        }
+        return cache[showId];
+    };
+})();
+
+// getEpisodes(82).then(console.log); works
+
 async function setup() {
+    const shows = await fetchShows();
     selectShowsSetup();
 }
 
