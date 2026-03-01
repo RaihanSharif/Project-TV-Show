@@ -2,6 +2,7 @@
 function setup() {
     const allEpisodes = getAllEpisodes();
     makePageForEpisodes(allEpisodes);
+    searchEpisodes(allEpisodes);
 }
 
 function makePageForEpisodes(episodeList) {
@@ -23,7 +24,30 @@ function makePageForEpisodes(episodeList) {
         return clone;
     });
 
-    rootElem.append(...allEpisodeCards);
+    rootElem.replaceChildren(...allEpisodeCards);
+}
+
+function searchEpisodes(episodeList) {
+    const searchInput = document.getElementById("search-input");
+    searchInput.addEventListener("input", (event) => {
+        const query = event.target.value.toLowerCase();
+        if (query === "") {
+            makePageForEpisodes(episodeList);
+            return;
+        }
+
+        const filtered = episodeList.filter((ep) => {
+            const { name, summary } = ep;
+            if (
+                name.toLowerCase().includes(query) ||
+                summary.toLowerCase().includes(query)
+            ) {
+                return ep;
+            }
+        });
+
+        makePageForEpisodes(filtered);
+    });
 }
 
 window.onload = setup;
