@@ -30,7 +30,7 @@ function renderShowCards(showList) {
     const showCardContainer = document.getElementById("show-cards-container");
     showCardContainer.classList.remove("hidden");
     showCardContainer.replaceChildren(
-        showCardContainer.firstChild,
+        showCardContainer.firstElementChild,
         ...showCards,
     );
 
