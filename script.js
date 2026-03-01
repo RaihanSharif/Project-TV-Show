@@ -20,12 +20,53 @@ const getEpisodes = (() => {
 
 async function setup() {
     const shows = await fetchShows();
-    selectShowsSetup();
+    renderShowCards(shows);
+
+    // selectShowsSetup(shows);
+}
+
+function renderShowCards(showList) {
+    const showCards = buildShowCards(showList);
+    const showCardContainer = document.getElementById("show-cards-container");
+    showCardContainer.classList.remove("hidden");
+    showCardContainer.replaceChildren(
+        showCardContainer.firstChild,
+        ...showCards,
+    );
+
+    const episodeCardContainer = document.getElementById(
+        "episodes-cards-container",
+    );
+    episodeCardContainer.classList.add("hidden");
+}
+
+function buildShowCards(showList) {
+    const template = document.getElementById("show-card-template");
+    const showCards = showList.map((show) => {
+        const clone = template.content.cloneNode(true);
+
+        const title = clone.querySelector(".show-title");
+        title.textContent = show.name;
+        title.addEventListener("click", handleShowClick);
+
+        clone.querySelector(".show-img").src = show.image.medium;
+        clone.querySelector(".show-summary").innerHTML = show.summary;
+        clone.querySelector(".rating").textContent =
+            `rating: ${show.rating.average}`;
+        clone.querySelector(".genres").textContent = show.genres.join(", ");
+        clone.querySelector(".status").textContent = show.status;
+        clone.querySelector(".runtime").textContent = show.runtime;
+        return clone;
+    });
+    return showCards;
+}
+
+function handleShowClick() {
+    return;
 }
 
 // populate shows selector, and attack event handler
-async function selectShowsSetup() {
-    const showList = await fetchShows();
+async function selectShowsSetup(showList) {
     const showSelect = document.getElementById("select-show");
     const showOpts = showList.map((sh) => {
         const opt = document.createElement("option");

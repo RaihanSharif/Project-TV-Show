@@ -17,33 +17,43 @@
             <h1>CYF TV Guide</h1>
         </header>
         <main>
-            <h1>Browse and search tv shows.</h1>
-            <div id="controls-container">
-                <select name="select-show" id="select-show">
-                    <option value="none">-- SELECT SHOW --</option>
-                </select>
-                <div id="select-episode-container" class="find-episodes">
-                    <!-- <label for select not necessary if default option explains the use </label> -->
-                    <select name="select-episodes" id="select-episodes">
-                        <option value="none" selected>
-                            -- SELECT EPISODE --
-                        </option>
-                    </select>
-                    <button id="undo-selected-episode" hidden>Show all</button>
+            <div id="show-cards-container"></div>
+            <div id="episodes-cards-container">
+                <div id="controls-container">
+                    <div id="select-episode-container" class="find-episodes">
+                        <!-- <label for select not necessary if default option explains the use </label> -->
+                        <select name="select-episodes" id="select-episodes">
+                            <option value="none" selected>
+                                -- SELECT EPISODE --
+                            </option>
+                        </select>
+                        <button id="undo-selected-episode" hidden>
+                            Show all
+                        </button>
+                    </div>
+                    <div id="search-container" class="find-episodes">
+                        <label for="search-input">Search Episodes: </label>
+                        <input
+                            type="search"
+                            name="search-input"
+                            id="search-input" />
+                        <span id="result-count"></span>
+                    </div>
                 </div>
-                <div id="search-container" class="find-episodes">
-                    <label for="search-input">Search Episodes: </label>
-                    <input
-                        type="search"
-                        name="search-input"
-                        id="search-input" />
-                    <span id="result-count"></span>
-                </div>
-            </div>
-            <div id="card-container">
-                <h2>Loading episode data...</h2>
             </div>
         </main>
+
+        <template id="show-card-template">
+            <h1 class="show-title"></h1>
+            <img src="" alt="" class="show-img" />
+            <p class="show-summary"></p>
+            <div class="show-facts">
+                <p class="rating"></p>
+                <p class="genres"></p>
+                <p class="status"></p>
+                <p class="runtime"></p>
+            </div>
+        </template>
         <template id="episode-card-template">
             <div class="episode-card">
                 <div class="title-container">
