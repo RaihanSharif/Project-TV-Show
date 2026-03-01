@@ -29,10 +29,12 @@ function makePageForEpisodes(episodeList) {
 
 function searchEpisodes(episodeList) {
     const searchInput = document.getElementById("search-input");
+    const resultCount = document.getElementById("result-count");
     searchInput.addEventListener("input", (event) => {
         const query = event.target.value.toLowerCase();
         if (query === "") {
             makePageForEpisodes(episodeList);
+            resultCount.textContent = "";
             return;
         }
 
@@ -45,7 +47,7 @@ function searchEpisodes(episodeList) {
                 return ep;
             }
         });
-
+        resultCount.textContent = `Displaying ${filtered.length}/${episodeList.length}`;
         makePageForEpisodes(filtered);
     });
 }
