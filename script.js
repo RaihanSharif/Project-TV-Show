@@ -68,6 +68,15 @@ function selectEpSetup(episodeList) {
     selecElem.addEventListener("input", (e) =>
         showSelectedEpisode(e, episodeList),
     );
+
+    const undoSingleEpSelection = document.getElementById(
+        "undo-selected-episode",
+    );
+
+    undoSingleEpSelection.addEventListener("click", () => {
+        makePageForEpisodes(episodeList);
+        undoSingleEpSelection.hidden = true;
+    });
 }
 
 function showSelectedEpisode(event, episodeList) {
@@ -77,6 +86,7 @@ function showSelectedEpisode(event, episodeList) {
     } else {
         const singleEp = episodeList.filter((item) => item.id == val);
         makePageForEpisodes(singleEp);
+        document.getElementById("undo-selected-episode").hidden = false;
     }
 }
 
