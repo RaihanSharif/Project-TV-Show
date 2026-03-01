@@ -6,9 +6,10 @@
 body {
     background-color: #e8f8f6;
     font-family: "Inter", sans-serif;
-    display: flex;
-    flex-direction: column;
     margin: 0;
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    min-height: 100vh;
 }
 
 header {
