@@ -9,7 +9,6 @@ body {
     font-family: "Inter", sans-serif;
     display: flex;
     flex-direction: column;
-    gap: 1rem;
     margin: 0;
 }
 

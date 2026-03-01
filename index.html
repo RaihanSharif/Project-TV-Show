@@ -13,14 +13,13 @@
 
     <body>
         <header>
-
-
-            </div>
             <h1>CYF</h1>
             <div id="select-episode-container" class="find-episodes">
-                <label for="select-episodes">Select a specifc episode: </label>
+                <!-- <label for="select-episodes">Select a specifc episode: </label> -->
                 <select name="select-episodes" id="select-episodes">
-                    <option value="none" selected>-- Please select an episode to see --</option>
+                    <option value="none" selected>
+                        -- Please select an episode to see --
+                    </option>
                 </select>
             </div>
             <div id="search-container" class="find-episodes">
@@ -31,7 +30,7 @@
         </header>
         <main>
             <h1>Browse and search tv shows.</h1>
-            <section id="card-container"></section>
+            <div id="card-container"></div>
         </main>
         <template id="episode-card-template">
             <div class="episode-card">
