@@ -13,8 +13,17 @@
 
     <body>
         <header>
+
+
+            </div>
             <h1>CYF</h1>
-            <div id="search-container">
+            <div id="select-episode-container" class="find-episodes">
+                <label for="select-episodes">Select a specifc episode to view: </label>
+                <select name="select-episodes" id="select-episodes">
+                    <option value="none" selected>-- Please select an episode to see --</option>
+                </select>
+            </div>
+            <div id="search-container" class="find-episodes">
                 <label for="search-input">Search database: </label>
                 <input type="search" name="search-input" id="search-input" />
                 <span id="result-count"></span>
