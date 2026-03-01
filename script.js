@@ -3,6 +3,7 @@ function setup() {
     const allEpisodes = getAllEpisodes();
     makePageForEpisodes(allEpisodes);
     searchEpisodes(allEpisodes);
+    selectEpSetup(allEpisodes);
 }
 
 function makePageForEpisodes(episodeList) {
@@ -50,6 +51,25 @@ function searchEpisodes(episodeList) {
         resultCount.textContent = `Displaying ${filtered.length}/${episodeList.length}`;
         makePageForEpisodes(filtered);
     });
+}
+
+function selectEpSetup(episodeList) {
+    const selecElem = document.getElementById("select-episodes");
+    const selectOpts = episodeList.map((ep) => {
+        const opt = document.createElement("option");
+        opt.value = ep.name;
+        const title = `S${String(ep.season).padStart(2, "0")}E${String(ep.number).padStart(2, "0")} - ${ep.name}`;
+        opt.textContent = title;
+        return opt;
+    });
+
+    selecElem.append(...selectOpts);
+
+    selecElem.addEventListener("input", showSelectedEpisode);
+}
+
+function showSelectedEpisode(event) {
+    const val = event.target.value;
 }
 
 window.onload = setup;
