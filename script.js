@@ -47,7 +47,7 @@ function setupShowSelector() {
 
     showSlector.addEventListener("change", (e) => {
         if (e.target.value !== "") {
-            renderEpisodes(e.target.value);
+            getShowEpisodes(e.target.value).then(renderEpisodes);
         } else {
             renderShows();
         }
@@ -83,18 +83,12 @@ function createShowCards(showList = state.showCache) {
 
         clone
             .querySelector(".show-card")
-            .addEventListener(
-                "click",
-                async () => await handleShowClick(sh.id),
+            .addEventListener("click", () =>
+                getShowEpisodes(sh.id).then(renderEpisodes),
             );
         return clone;
     });
     return cards;
-}
-
-async function handleShowClick(showId) {
-    const episodes = await getShowEpisodes(showId);
-    renderEpisodes(episodes);
 }
 
 function renderEpisodes(episodeList) {
