@@ -1,8 +1,6 @@
 import { fetchShows, fetchEpisodes } from "./fetchTVData.js";
 
 const state = {
-    // "shows" or "episodes", determines behaviour of search, dropdown etc.
-    view: "shows",
     showCache: [],
     episodeCache: {},
 };
@@ -96,8 +94,7 @@ async function renderEpisodes(showId) {
     // attach episode cards to container
 
     // toggle hidden
-    state.view = "show";
-    changeVisibility();
+    changeVisibility("show");
     return;
 }
 
@@ -114,14 +111,16 @@ function htmlToText(htmlString) {
     return doc.body.textContent;
 }
 
-function changeVisibility() {
+// input "show" | "episode"
+// toggles visibility of show/epsiode
+function changeVisibility(type) {
     const showControls = document.getElementById("show-controls");
     const showContainer = document.getElementById("show-cards");
 
     const episodeControls = document.getElementById("episode-controls");
     const episodeContainer = document.getElementById("episode-cards");
 
-    if (state.view === "show") {
+    if (type === "show") {
         showControls.classList.remove("hidden");
         showContainer.classList.remove("hidden");
 
