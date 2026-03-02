@@ -36,7 +36,7 @@ function setupShowSelector() {
     const defaultOpt = document.createElement("option");
     defaultOpt.selected = true;
     defaultOpt.textContent = "-- SELECT A SHOW --";
-    defaultOpt.value = "none";
+    defaultOpt.value = null;
 
     const showOpts = state.showCache.map((sh) => {
         const opt = document.createElement("option");
@@ -44,12 +44,51 @@ function setupShowSelector() {
         opt.value = sh.id;
         return opt;
     });
-
     showSlector.replaceChildren(defaultOpt, ...showOpts);
+
+    showSlector.addEventListener("change", (e) => {
+        if (e.target.value) {
+            renderEpisodes(e.target.value);
+        }
+        return;
+    });
+}
+
+async function renderEpisodes(showId) {
+    const shows = await getShowEpisodes(showId);
+    // build episode cards
+    // attach episode cards to container
+
+    // toggle hidden
+    state.view = "show";
+    changeVisibility();
+    return;
 }
 
 /*
  UTILITY FUNCTIONS
 */
+
+function changeVisibility() {
+    const showControls = document.getElementById("show-controls");
+    const showContainer = document.getElementById("show-cards");
+
+    const episodeControls = document.getElementById("episode-controls");
+    const episodeContainer = document.getElementById("episode-cards");
+
+    if (state.view === "show") {
+        showControls.classList.remove("hidden");
+        showContainer.classList.remove("hidden");
+
+        episodeContainer.classList.add("hidden");
+        episodeControls.classList.add("hidden");
+    } else {
+        showControls.classList.add("hidden");
+        showContainer.classList.add("hidden");
+
+        episodeContainer.classList.remove("hidden");
+        episodeControls.classList.remove("hidden");
+    }
+}
 
 window.onload = setup;
