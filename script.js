@@ -12,13 +12,15 @@ const fetchStatus = document.getElementById("fetch-status");
 async function setup() {
     // cache shows on initial setup
     try {
-        state.showCache = await fetchShows();
+        const temp = await fetchShows();
+        state.showCache = temp.sort((a, b) => a.name.localeCompare(b.name));
         fetchStatus.textContent = "";
     } catch (error) {
         fetchStatus.textContent = error.message;
         return;
     }
     setupShowSelector();
+    renderShows();
 }
 
 // fetch episodes from cache or API, or show error message
@@ -36,7 +38,7 @@ function setupShowSelector() {
     const defaultOpt = document.createElement("option");
     defaultOpt.selected = true;
     defaultOpt.textContent = "-- SELECT A SHOW --";
-    defaultOpt.value = null;
+    defaultOpt.value = "";
 
     const showOpts = state.showCache.map((sh) => {
         const opt = document.createElement("option");
@@ -47,11 +49,45 @@ function setupShowSelector() {
     showSlector.replaceChildren(defaultOpt, ...showOpts);
 
     showSlector.addEventListener("change", (e) => {
-        if (e.target.value) {
+        console.log(e.target.value);
+        if (e.target.value !== "") {
             renderEpisodes(e.target.value);
+        } else {
+            renderShows();
         }
-        return;
     });
+}
+
+function renderShows() {
+    const showContainer = document.getElementById("show-cards");
+    showContainer.replaceChildren(...createShowCards());
+}
+
+function createShowCards() {
+    const showTemplate = document.getElementById("show-template");
+    const cards = state.showCache.map((sh) => {
+        const clone = showTemplate.content.cloneNode(true);
+        clone.querySelector(".show-name").textContent = sh.name;
+        clone.querySelector(".show-img").src = sh.image?.medium;
+        clone.querySelector(".show-img").alt = sh.name;
+        clone.querySelector(".show-summary").textContent = htmlToText(
+            sh.summary,
+        );
+        clone.querySelector(".show-genres").textContent = sh.genres.join(" | ");
+        clone.querySelector(".show-status").textContent = sh.status;
+        clone.querySelector(".show-rating").textContent = sh.rating.average;
+        clone.querySelector(".show-runtime").textContent = `${sh.runtime} mins`;
+
+        clone
+            .querySelector(".show-card")
+            .addEventListener("click", () => handleShowClick(sh.id));
+        return clone;
+    });
+    return cards;
+}
+
+function handleShowClick(showId) {
+    console.log(showId);
 }
 
 async function renderEpisodes(showId) {
@@ -68,6 +104,15 @@ async function renderEpisodes(showId) {
 /*
  UTILITY FUNCTIONS
 */
+
+function composeEpisodeCodeAndName(episode) {}
+
+// show/episode summary from API is a html string, need to convert to regular string
+function htmlToText(htmlString) {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(htmlString, "text/html");
+    return doc.body.textContent;
+}
 
 function changeVisibility() {
     const showControls = document.getElementById("show-controls");
