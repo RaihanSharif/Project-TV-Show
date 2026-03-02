@@ -27,7 +27,6 @@ async function getShowEpisodes(showId) {
         return (state.episodeCache[showId] ??= await fetchEpisodes(showId));
     } catch (error) {
         fetchStatus.textContent = error.message;
-        return;
     }
 }
 
@@ -47,7 +46,6 @@ function setupShowSelector() {
     showSlector.replaceChildren(defaultOpt, ...showOpts);
 
     showSlector.addEventListener("change", (e) => {
-        console.log(e.target.value);
         if (e.target.value !== "") {
             renderEpisodes(e.target.value);
         } else {
@@ -59,11 +57,18 @@ function setupShowSelector() {
 function renderShows() {
     const showContainer = document.getElementById("show-cards");
     showContainer.replaceChildren(...createShowCards());
+    changeVisibility("show");
 }
 
-function createShowCards() {
+/**
+ * Takes an array of show objects, and returns an array containing
+ * card elements. By default uses the shows array in the cache.
+ * @param {Show} showList an array of show objects
+ * @returns array of card elements
+ */
+function createShowCards(showList = state.showCache) {
     const showTemplate = document.getElementById("show-template");
-    const cards = state.showCache.map((sh) => {
+    const cards = showList.map((sh) => {
         const clone = showTemplate.content.cloneNode(true);
         clone.querySelector(".show-name").textContent = sh.name;
         clone.querySelector(".show-img").src = sh.image?.medium;
@@ -78,31 +83,53 @@ function createShowCards() {
 
         clone
             .querySelector(".show-card")
-            .addEventListener("click", () => handleShowClick(sh.id));
+            .addEventListener(
+                "click",
+                async () => await handleShowClick(sh.id),
+            );
         return clone;
     });
     return cards;
 }
 
-function handleShowClick(showId) {
-    console.log(showId);
+async function handleShowClick(showId) {
+    const episodes = await getShowEpisodes(showId);
+    renderEpisodes(episodes);
 }
 
-async function renderEpisodes(showId) {
-    const shows = await getShowEpisodes(showId);
-    // build episode cards
-    // attach episode cards to container
+function renderEpisodes(episodeList) {
+    const episodeCards = createEpisodeCards(episodeList);
+    const episodeContainer = document.getElementById("episode-cards");
+    episodeContainer.replaceChildren(...episodeCards);
 
     // toggle hidden
-    changeVisibility("show");
-    return;
+    changeVisibility("episode");
+}
+
+function createEpisodeCards(episodeList) {
+    const episodeTemplate = document.getElementById("episode-template");
+    const cards = episodeList.map((ep) => {
+        const clone = episodeTemplate.content.cloneNode(true);
+        clone.querySelector(".episode-name").textContent =
+            `${ep.name} - ${seasonEpisodeCode(ep)}`;
+        clone.querySelector(".episode-img").src = ep.image.medium;
+        clone.querySelector(".episode-img").alt = ep.name;
+        clone.querySelector(".episode-summary").textContent = htmlToText(
+            ep.summary,
+        );
+        return clone;
+    });
+    console.log(cards);
+    return cards;
 }
 
 /*
  UTILITY FUNCTIONS
 */
 
-function composeEpisodeCodeAndName(episode) {}
+function seasonEpisodeCode(episode) {
+    return `S${String(episode.season).padStart(2, "0")}E${String(episode.number).padStart(2, "0")}`;
+}
 
 // show/episode summary from API is a html string, need to convert to regular string
 function htmlToText(htmlString) {
