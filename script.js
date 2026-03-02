@@ -8,6 +8,7 @@ const state = {
 };
 
 const fetchStatus = document.getElementById("fetch-status");
+
 async function setup() {
     // cache shows on initial setup
     try {
@@ -17,6 +18,7 @@ async function setup() {
         fetchStatus.textContent = error.message;
         return;
     }
+    setupShowSelector();
 }
 
 // fetch episodes from cache or API, or show error message
@@ -29,133 +31,25 @@ async function getShowEpisodes(showId) {
     }
 }
 
-// populate shows selector, and attack event handler
-async function selectShowsSetup() {
-    const showList = await fetchShows();
-    const showSelect = document.getElementById("select-show");
-    const showOpts = showList.map((sh) => {
+function setupShowSelector() {
+    const showSlector = document.getElementById("show-selector");
+    const defaultOpt = document.createElement("option");
+    defaultOpt.selected = true;
+    defaultOpt.textContent = "-- SELECT A SHOW --";
+    defaultOpt.value = "none";
+
+    const showOpts = state.showCache.map((sh) => {
         const opt = document.createElement("option");
-        opt.value = sh.id;
         opt.textContent = sh.name;
-        return opt;
-    });
-    showSelect.append(...showOpts);
-    showSelect.addEventListener("input", handleSelectShow);
-}
-
-// populate episode selector based on selected show
-// create and show cards for all episodes of show
-// set up search input, which searches episodes of given show
-async function handleSelectShow(event) {
-    const showId = event.target.value;
-    if (showId !== "none") {
-        const episodesList = await fetchEpisodes(showId);
-        console.log("calling select Episodes setup");
-        selectEpisodesSetup(episodesList);
-        makePageForEpisodes(episodesList);
-        searchEpisodes(episodesList);
-    } else {
-        selectEpisodesSetup([]);
-        makePageForEpisodes([]);
-        searchEpisodes([]);
-    }
-}
-
-function selectEpisodesSetup(episodesList) {
-    const selecElem = document.getElementById("select-episodes");
-    const selectOpts = episodesList.map((ep) => {
-        const opt = document.createElement("option");
-        opt.value = ep.id;
-        const title = `S${String(ep.season).padStart(2, "0")}E${String(ep.number).padStart(2, "0")} - ${ep.name}`;
-        opt.textContent = title;
+        opt.value = sh.id;
         return opt;
     });
 
-    const defaultOption = document.createElement("option");
-    defaultOption.value = "none";
-    defaultOption.textContent = "-- SELECT EPISODE --";
-    defaultOption.selected = true;
-    selecElem.replaceChildren(defaultOption, ...selectOpts);
-
-    selecElem.addEventListener("input", (e) =>
-        handleSelectEpisode(e, episodesList),
-    );
+    showSlector.replaceChildren(defaultOpt, ...showOpts);
 }
 
-function handleSelectEpisode(event, episodesList) {
-    const val = event.target.value;
-    if (val === "none") {
-        makePageForEpisodes(episodesList);
-    } else {
-        const singleEp = episodesList.filter((item) => item.id == val);
-        makePageForEpisodes(singleEp);
-        document.getElementById("undo-selected-episode").hidden = false;
-
-        // undo selection of single episode
-        const undoSingleEpSelection = document.getElementById(
-            "undo-selected-episode",
-        );
-
-        undoSingleEpSelection.addEventListener("click", () => {
-            makePageForEpisodes(episodesList);
-            undoSingleEpSelection.hidden = true;
-        });
-    }
-}
-
-function searchEpisodes(episodesList) {
-    const searchInput = document.getElementById("search-input");
-
-    searchInput.addEventListener("input", (e) =>
-        handleSeachInput(e, episodesList),
-    );
-}
-
-// on change of search input, filter for episode title or summary containing input text
-// show how many out of all episodes match query
-function handleSeachInput(event, episodesList) {
-    const resultCount = document.getElementById("result-count");
-    const query = event.target.value.toLowerCase();
-    if (query === "") {
-        makePageForEpisodes(episodesList);
-        resultCount.textContent = "";
-        return;
-    }
-
-    const filtered = episodesList.filter((ep) => {
-        const { name, summary } = ep;
-        if (
-            name.toLowerCase().includes(query) ||
-            summary.toLowerCase().includes(query)
-        ) {
-            return ep;
-        }
-    });
-    resultCount.textContent = `Displaying ${filtered.length}/${episodesList.length}`;
-    makePageForEpisodes(filtered);
-}
-
-// given an array of episode objects, create html cards with info about each episode
-function makePageForEpisodes(episodeList) {
-    const rootElem = document.querySelector("#card-container");
-    const template = document.getElementById("episode-card-template");
-    const allEpisodeCards = episodeList.map((ep) => {
-        const clone = template.content.cloneNode(true);
-        const title = `${ep.name} - S${String(ep.season).padStart(2, "0")}E${String(ep.number).padStart(2, "0")}`;
-        clone.querySelector(".episode-title").textContent = title;
-        clone.querySelector(".episode-img").src = ep.image?.medium;
-        clone.querySelector(".episode-img").alt = ep.name;
-        // strip the <p> tags from the string to avoid rendering the text as HTML using innerHTMLand its
-        // security risks.
-        clone.querySelector(".episode-desc").textContent = ep.summary.replace(
-            /<[^>]*>/g,
-            "",
-        );
-
-        return clone;
-    });
-
-    rootElem.replaceChildren(...allEpisodeCards);
-}
+/*
+ UTILITY FUNCTIONS
+*/
 
 window.onload = setup;

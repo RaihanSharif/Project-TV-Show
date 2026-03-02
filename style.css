@@ -53,47 +53,8 @@ footer > a {
     font-weight: bold;
 }
 
-#controls-container {
-    display: flex;
-    gap: 1.5rem;
-}
-
-#card-container {
-    display: grid;
-    grid-template-columns: repeat(
-        auto-fill,
-        minmax(clamp(250px, 20%, 350px), 1fr)
-    );
-    gap: 1rem;
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 1rem;
-    width: 100%;
-}
-
-.episode-desc {
-    padding: 0.5rem;
-}
-
-.episode-card {
-    display: grid;
-    align-content: start;
-    justify-items: center;
-    background-color: white;
-    box-shadow: rgba(0, 0, 0, 0.15) 2px 2px 3px;
-}
-
-.episode-card img {
-    width: 100%;
-    height: auto;
-    display: block;
-}
-
-.title-container {
-    border: 1px solid black;
-    width: 100%;
-    font-size: 0.8rem;
-    text-align: center;
+.hidden {
+    visibility: hidden;
 }
 
 @media (max-width: 600px) {
