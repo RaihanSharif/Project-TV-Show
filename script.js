@@ -1,7 +1,32 @@
 import { fetchShows, fetchEpisodes } from "./fetchTVData.js";
 
+const state = {
+    // "shows" or "episodes", determines behaviour of search, dropdown etc.
+    view: "shows",
+    showCache: [],
+    episodeCache: {},
+};
+
+const fetchStatus = document.getElementById("fetch-status");
 async function setup() {
-    selectShowsSetup();
+    // cache shows on initial setup
+    try {
+        state.showCache = await fetchShows();
+        fetchStatus.textContent = "";
+    } catch (error) {
+        fetchStatus.textContent = error.message;
+        return;
+    }
+}
+
+// fetch episodes from cache or API, or show error message
+async function getShowEpisodes(showId) {
+    try {
+        return (state.episodeCache[showId] ??= await fetchEpisodes(showId));
+    } catch (error) {
+        fetchStatus.textContent = error.message;
+        return;
+    }
 }
 
 // populate shows selector, and attack event handler

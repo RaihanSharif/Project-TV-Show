@@ -3,29 +3,21 @@
 export async function fetchEpisodes(showId) {
     const url = `https://api.tvmaze.com/shows/${showId}/episodes`;
 
-    try {
-        const response = await fetch(url);
-        if (!response.ok) {
-            throw new Error(`Response status: ${response.status}`);
-        }
-
-        return await response.json();
-    } catch (error) {
-        alert(`There was an error fetching episodes ${error}`);
+    const response = await fetch(url);
+    if (!response.ok) {
+        throw new Error(`Could not fetch episodes: ${response.status}`);
     }
+
+    return response.json();
 }
 
 export async function fetchShows() {
     const url = `https://api.tvmaze.com/shows`;
 
-    try {
-        const response = await fetch(url);
-        if (!response.ok) {
-            throw new Error(`Response status: ${response.status}`);
-        }
-
-        return await response.json();
-    } catch (error) {
-        alert(`There was an error fetching shows ${error}`);
+    const response = await fetch(url);
+    if (!response.ok) {
+        throw new Error(`Could not fetch shows: ${response.status}`);
     }
+
+    return response.json();
 }
