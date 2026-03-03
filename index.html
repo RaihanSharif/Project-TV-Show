@@ -3,18 +3,106 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>TV Show Project | Raihan Sharif (RaihanSharif)</title>
+        <title>TV Show Project | Raihan Sharif (raihansharif)</title>
         <link href="style.css" rel="stylesheet" />
         <link rel="icon" href="/favicon.ico" type="image/x-icon" />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap"
+            rel="stylesheet" />
+        <script src="script.js" type="module"></script>
+        <meta name="description" content="TV show and episode guide" />
     </head>
 
     <body>
-        <div id="root"></div>
+        <header>
+            <h1>CYF TV Guide</h1>
+        </header>
+        <main>
+            <h2 id="fetch-status">Loading...</h2>
+            <div
+                id="show-controls"
+                role="group"
+                aria-label="Show selection and search">
+                <!-- need this wrapper div, can't set outer div to flex, grid etc. -->
+                <div class="controls">
+                    <select name="show-selector" id="show-selector"></select>
+                    <div id="show-search-container">
+                        <label for="show-search">Search shows: </label>
+                        <input
+                            type="search"
+                            name="show-search"
+                            id="show-search" />
+                        <span id="show-result-count" aria-live="polite"></span>
+                    </div>
+                </div>
+            </div>
+            <div
+                id="episode-controls"
+                class="hidden"
+                role="group"
+                aria-label="Episode selection and search">
+                <div class="controls">
+                    <select
+                        name="episode-selector"
+                        id="episode-selector"></select>
+                    <div id="episode-search-container">
+                        <label for="episode-search">Search episodes: </label>
+                        <input
+                            type="search"
+                            name="episode-search"
+                            id="episode-search" />
+                        <span id="episode-count" aria-live="polite"></span>
+                    </div>
+                    <button id="back-to-shows">Back to shows</button>
+                </div>
+            </div>
 
-        <!-- Loads a provided function called getAllEpisodes() which returns all episodes -->
-        <script src="episodes.js"></script>
+            <!-- need wrappers because hidden class prevents applying layout with CSS -->
+            <div id="show-cards-wrapper">
+                <div id="show-cards"></div>
+            </div>
+            <!-- need wrappers because hidden class prevents applying layout with CSS -->
+            <h1 id="episodes-heading" class="hidden"></h1>
+            <div id="episode-cards-wrapper" class="hidden">
+                <div id="episode-cards"></div>
+            </div>
+        </main>
 
-        <!-- Loads YOUR javascript code -->
-        <script src="script.js"></script>
+        <template id="show-template">
+            <article class="show-card">
+                <h2 class="show-name"></h2>
+                <img class="show-img" src="" alt="" />
+                <p class="show-summary"></p>
+                <div>
+                    <dl class="show-facts">
+                        <dt>Genres:</dt>
+                        <dd class="show-genres"></dd>
+                        <dt>Status:</dt>
+                        <dd class="show-status"></dd>
+                        <dt>Rating:</dt>
+                        <dd class="show-rating"></dd>
+                        <dt>Runtime:</dt>
+                        <dd class="show-runtime"></dd>
+                    </dl>
+                </div>
+            </article>
+        </template>
+
+        <template id="episode-template">
+            <article class="episode-card">
+                <h2 class="episode-name"></h2>
+                <img class="episode-img" src="" alt="" />
+                <p class="episode-summary"></p>
+            </article>
+        </template>
+        <footer>
+            Episode information from
+            <a
+                href="http://www.tvmaze.com"
+                rel="noopener noreferrer"
+                target="_blank"
+                >TVMaze.com</a
+            >
+        </footer>
     </body>
 </html>
