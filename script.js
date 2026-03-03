@@ -124,7 +124,7 @@ function createEpisodeCards(episodeList) {
         const clone = episodeTemplate.content.cloneNode(true);
         clone.querySelector(".episode-name").textContent =
             `${ep.name} - ${seasonEpisodeCode(ep)}`;
-        clone.querySelector(".episode-img").src = ep.image.medium;
+        clone.querySelector(".episode-img").src = ep.image?.medium;
         clone.querySelector(".episode-img").alt = ep.name;
         clone.querySelector(".episode-summary").textContent = htmlToText(
             ep.summary,
