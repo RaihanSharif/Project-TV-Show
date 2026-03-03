@@ -38,12 +38,15 @@ async function getShowEpisodes(showId) {
     }
 }
 
+// show selector only needs to be set up once
+// if default -- SELECT A SHOW -- is picked
 function setupShowSelector() {
     const showSelector = document.getElementById("show-selector");
     const defaultOpt = document.createElement("option");
     defaultOpt.selected = true;
     defaultOpt.textContent = "-- SELECT A SHOW --";
     defaultOpt.value = "";
+    defaultOpt.disabled = true;
 
     const showOpts = state.showCache.map((sh) => {
         const opt = document.createElement("option");
@@ -54,15 +57,12 @@ function setupShowSelector() {
     showSelector.replaceChildren(defaultOpt, ...showOpts);
 
     showSelector.addEventListener("change", (e) => {
-        if (e.target.value !== "") {
-            const name = showSelector.options[showSelector.selectedIndex].text;
-            displayEpisodesPage(e.target.value, name);
-        } else {
-            renderShows();
-        }
+        const name = showSelector.options[showSelector.selectedIndex].text;
+        displayEpisodesPage(e.target.value, name);
     });
 }
 
+// searches across name, summary, and genres
 function showSearch() {
     const showSearchInput = document.getElementById("show-search");
     showSearchInput.addEventListener("input", (e) => {
@@ -82,6 +82,8 @@ function showSearch() {
     });
 }
 
+// needed as renderEpisodes cannot cannot populate episode selector
+// and this is used for both show click event and show select event
 async function displayEpisodesPage(showId, showName) {
     const episodesHeading = document.getElementById("episodes-heading");
     episodesHeading.textContent = showName;
@@ -92,18 +94,17 @@ async function displayEpisodesPage(showId, showName) {
     renderEpisodes(episodes);
 }
 
+// creates show cards from supplied show list, or from cache
+// and attaches to show container, hides episode container
 function renderShows(showList = state.showCache) {
     const showContainer = document.getElementById("show-cards");
     showContainer.replaceChildren(...createShowCards(showList));
     changeVisibility("show");
 }
 
-/**
- * Takes an array of show objects, and returns an array containing
- * card elements. By default uses the shows array in the cache.
- * @param {Show} showList an array of show objects
- * @returns array of card elements
- */
+// takes list of shows and creates show cards
+// show cards call display Episode when heading is clicked
+// would be more efficent to use event delegation/bubbling
 function createShowCards(showList = state.showCache) {
     const showTemplate = document.getElementById("show-template");
     const cards = showList.map((sh) => {
@@ -129,15 +130,16 @@ function createShowCards(showList = state.showCache) {
     return cards;
 }
 
-// each time a show is selected or clicked
-// the episode cards must be re-generated
+// takes a list of episodes and creates cards for them,
+// attaches to episodes container
+// sets shows container to invisible
 function renderEpisodes(episodeList) {
     const episodeCards = createEpisodeCards(episodeList);
     const episodeContainer = document.getElementById("episode-cards");
     episodeContainer.replaceChildren(...episodeCards);
     // searchEpisodes(episodeList);
 
-    // toggle hidden
+    // hides shows Container, displays episodes container
     changeVisibility("episode");
 }
 
@@ -157,6 +159,9 @@ function createEpisodeCards(episodeList) {
     return cards;
 }
 
+// populate episode select options. Add Event Listener
+// which filters out all episdes other than the selected one
+// and renders it.
 function setupEpisodeSelector(episodeList) {
     const episodeSelector = document.getElementById("episode-selector");
     const defaultOpt = document.createElement("option");
@@ -187,6 +192,7 @@ function setupEpisodeSelector(episodeList) {
     });
 }
 
+// searches name and summary of episode for matching string
 function searchEpisodes(episodeList) {
     const searchEpisodesInput = document.getElementById("episode-search");
 
@@ -207,6 +213,7 @@ function searchEpisodes(episodeList) {
  UTILITY FUNCTIONS
 */
 
+// format season and episode in into S01E02 format
 function seasonEpisodeCode(episode) {
     return `S${String(episode.season).padStart(2, "0")}E${String(episode.number).padStart(2, "0")}`;
 }
