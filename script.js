@@ -1,7 +1,7 @@
 import { fetchShows, fetchEpisodes } from "./fetchTVData.js";
 
 const state = {
-    showCache: [],
+    showCache: [], //TODO: refactor: show does not need to be cached. It's called once at the start and passed around
     episodeCache: {},
 };
 
@@ -54,6 +54,8 @@ function setupShowSelector() {
     });
 }
 
+// TODO: move showContainer.replaceChildren to the initial setup
+// as this really only needs to be done once
 function renderShows() {
     const showContainer = document.getElementById("show-cards");
     showContainer.replaceChildren(...createShowCards());
@@ -82,7 +84,7 @@ function createShowCards(showList = state.showCache) {
         clone.querySelector(".show-runtime").textContent = `${sh.runtime} mins`;
 
         clone
-            .querySelector(".show-card")
+            .querySelector(".show-name")
             .addEventListener("click", () =>
                 getShowEpisodes(sh.id).then(renderEpisodes),
             );
@@ -95,7 +97,7 @@ function renderEpisodes(episodeList) {
     const episodeCards = createEpisodeCards(episodeList);
     const episodeContainer = document.getElementById("episode-cards");
     episodeContainer.replaceChildren(...episodeCards);
-
+    setupEpisodeSelector(episodeList);
     // toggle hidden
     changeVisibility("episode");
 }
@@ -115,6 +117,27 @@ function createEpisodeCards(episodeList) {
     });
     console.log(cards);
     return cards;
+}
+
+function setupEpisodeSelector(episodeList) {
+    const episodeSelector = document.getElementById("episode-selector");
+    const defaultOpt = document.createElement("option");
+    defaultOpt.selected = true;
+    defaultOpt.textContent = "-- SELECT A SHOW --";
+    defaultOpt.value = "";
+
+    const episodeOpts = episodeList.map((ep) => {
+        const opt = document.createElement("option");
+        opt.textContent = `${seasonEpisodeCode(ep)} - ${ep.name}`;
+        opt.value = ep.id;
+        return opt;
+    });
+
+    episodeSelector.replaceChildren(defaultOpt, ...episodeOpts);
+
+    episodeSelector.addEventListener("change", (e) =>
+        console.log(e.target.value),
+    );
 }
 
 /*
