@@ -235,10 +235,10 @@ function htmlToText(htmlString) {
 // toggles visibility of show/epsiode
 function changeVisibility(type) {
     const showControls = document.getElementById("show-controls");
-    const showContainer = document.getElementById("show-cards");
+    const showContainer = document.getElementById("show-cards-wrapper");
 
     const episodeControls = document.getElementById("episode-controls");
-    const episodeContainer = document.getElementById("episode-cards");
+    const episodeContainer = document.getElementById("episode-cards-wrapper");
     const episodeHeading = document.getElementById("episodes-heading");
 
     if (type === "show") {

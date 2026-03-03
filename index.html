@@ -56,9 +56,16 @@
                     <button id="back-to-shows">Back to shows</button>
                 </div>
             </div>
-            <div id="show-cards"></div>
+
+            <!-- need wrappers because hidden class prevents applying layout with CSS -->
+            <div id="show-cards-wrapper">
+                <div id="show-cards"></div>
+            </div>
+            <!-- need wrappers because hidden class prevents applying layout with CSS -->
             <h1 id="episodes-heading" class="hidden"></h1>
-            <div id="episode-cards" class="hidden"></div>
+            <div id="episode-cards-wrapper" class="hidden">
+                <div id="episode-cards"></div>
+            </div>
         </main>
 
         <template id="show-template">
