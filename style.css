@@ -160,10 +160,36 @@ Episode card styles
 
 @media (max-width: 600px) {
     main {
-        padding: 0.5rem;
+        padding: 1rem;
     }
 
     header {
         flex-direction: column;
+    }
+
+    .controls {
+        flex-direction: column;
+    }
+
+    #show-search-container,
+    #episode-search-container {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+
+    #show-selector,
+    #episode-selector,
+    #show-search,
+    #episode-search,
+    #back-to-shows {
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .card {
+        display: flex;
+        flex-direction: column;
+        max-width: 100%;
     }
 }
