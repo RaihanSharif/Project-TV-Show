@@ -31,7 +31,7 @@ async function getShowEpisodes(showId) {
 }
 
 function setupShowSelector() {
-    const showSlector = document.getElementById("show-selector");
+    const showSelector = document.getElementById("show-selector");
     const defaultOpt = document.createElement("option");
     defaultOpt.selected = true;
     defaultOpt.textContent = "-- SELECT A SHOW --";
@@ -43,15 +43,24 @@ function setupShowSelector() {
         opt.value = sh.id;
         return opt;
     });
-    showSlector.replaceChildren(defaultOpt, ...showOpts);
+    showSelector.replaceChildren(defaultOpt, ...showOpts);
 
-    showSlector.addEventListener("change", (e) => {
+    showSelector.addEventListener("change", (e) => {
         if (e.target.value !== "") {
-            getShowEpisodes(e.target.value).then(renderEpisodes);
+            const name = showSelector.options[showSelector.selectedIndex].text;
+            displayEpisodesPage(e.target.value, name);
         } else {
             renderShows();
         }
     });
+}
+
+async function displayEpisodesPage(showId, showName) {
+    const episodesHeading = document.getElementById("episodes-heading");
+    episodesHeading.textContent = showName;
+    const episodes = await getShowEpisodes(showId);
+    setupEpisodeSelector(episodes);
+    renderEpisodes(episodes);
 }
 
 // TODO: move showContainer.replaceChildren to the initial setup
@@ -85,19 +94,21 @@ function createShowCards(showList = state.showCache) {
 
         clone
             .querySelector(".show-name")
-            .addEventListener("click", () =>
-                getShowEpisodes(sh.id).then(renderEpisodes),
+            .addEventListener("click", async (e) =>
+                displayEpisodesPage(sh.id, sh.name),
             );
         return clone;
     });
     return cards;
 }
 
+// each time a show is selected or clicked
+// the episode cards must be re-generated
 function renderEpisodes(episodeList) {
     const episodeCards = createEpisodeCards(episodeList);
     const episodeContainer = document.getElementById("episode-cards");
     episodeContainer.replaceChildren(...episodeCards);
-    setupEpisodeSelector(episodeList);
+
     // toggle hidden
     changeVisibility("episode");
 }
@@ -115,7 +126,6 @@ function createEpisodeCards(episodeList) {
         );
         return clone;
     });
-    console.log(cards);
     return cards;
 }
 
@@ -123,7 +133,7 @@ function setupEpisodeSelector(episodeList) {
     const episodeSelector = document.getElementById("episode-selector");
     const defaultOpt = document.createElement("option");
     defaultOpt.selected = true;
-    defaultOpt.textContent = "-- SELECT A SHOW --";
+    defaultOpt.textContent = "-- SELECT AN EPISODE --";
     defaultOpt.value = "";
 
     const episodeOpts = episodeList.map((ep) => {
@@ -135,9 +145,19 @@ function setupEpisodeSelector(episodeList) {
 
     episodeSelector.replaceChildren(defaultOpt, ...episodeOpts);
 
-    episodeSelector.addEventListener("change", (e) =>
-        console.log(e.target.value),
-    );
+    episodeSelector.addEventListener("change", (e) => {
+        const val = e.target.value;
+
+        if (val === "") {
+            renderEpisodes(episodeList);
+        } else {
+            const filtered = episodeList.filter(
+                (ep) => ep.id === Number(e.target.value),
+            );
+            console.log(filtered);
+            renderEpisodes(filtered);
+        }
+    });
 }
 
 /*
@@ -163,6 +183,7 @@ function changeVisibility(type) {
 
     const episodeControls = document.getElementById("episode-controls");
     const episodeContainer = document.getElementById("episode-cards");
+    const episodeHeading = document.getElementById("episodes-heading");
 
     if (type === "show") {
         showControls.classList.remove("hidden");
@@ -170,12 +191,14 @@ function changeVisibility(type) {
 
         episodeContainer.classList.add("hidden");
         episodeControls.classList.add("hidden");
+        episodeHeading.classList.add("hidden");
     } else {
         showControls.classList.add("hidden");
         showContainer.classList.add("hidden");
 
         episodeContainer.classList.remove("hidden");
         episodeControls.classList.remove("hidden");
+        episodeHeading.classList.remove("hidden");
     }
 }
 
