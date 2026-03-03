@@ -208,7 +208,7 @@ function searchEpisodes(episodeList) {
 
         renderEpisodes(filtered);
         if (searchStr.length > 0) {
-            searchCount.textContent = `${filtered.length}/${episodeList.length} resuls`;
+            searchCount.textContent = `${filtered.length}/${episodeList.length} results`;
         } else {
             searchCount.textContent = "";
         }
