@@ -61,7 +61,13 @@ footer > a {
     flex-wrap: wrap;
 }
 
-#show-cards {
+/* 
+------
+Show card styles
+------
+*/
+#show-cards,
+#episode-cards {
     display: flex;
     flex-direction: column;
     gap: 1rem;
@@ -117,6 +123,38 @@ footer > a {
     font-weight: bold;
 }
 .show-facts > dd {
+    margin: 0;
+}
+
+/*
+------------
+Episode card styles
+------------
+*/
+
+.episode-card {
+    display: grid;
+    grid-template-areas:
+        "header header"
+        "image summary";
+    grid-template-columns: auto 1fr;
+    gap: 1rem;
+    border: 1px solid black;
+    padding: 1rem;
+    background-color: white;
+}
+
+.episode-name {
+    grid-area: header;
+    margin: 0;
+}
+
+.episode-img {
+    grid-area: image;
+}
+
+.episode-summary {
+    grid-area: summary;
     margin: 0;
 }
 
