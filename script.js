@@ -195,6 +195,7 @@ function setupEpisodeSelector(episodeList) {
 // searches name and summary of episode for matching string
 function searchEpisodes(episodeList) {
     const searchEpisodesInput = document.getElementById("episode-search");
+    const searchCount = document.getElementById("episode-count");
 
     // instead of addListener to avoid listener stacking
     searchEpisodesInput.oninput = (e) => {
@@ -206,6 +207,11 @@ function searchEpisodes(episodeList) {
         );
 
         renderEpisodes(filtered);
+        if (searchStr.length > 0) {
+            searchCount.textContent = `${filtered.length}/${episodeList.length} resuls`;
+        } else {
+            searchCount.textContent = "";
+        }
     };
 }
 
