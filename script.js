@@ -1,7 +1,7 @@
 import { fetchShows, fetchEpisodes } from "./fetchTVData.js";
 
 const state = {
-    showCache: [], //TODO: refactor: show does not need to be cached. It's called once at the start and passed around
+    showCache: [],
     episodeCache: {},
 };
 
@@ -23,6 +23,8 @@ async function setup() {
 
     const backButton = document.getElementById("back-to-shows");
     backButton.addEventListener("click", () => {
+        setupShowSelector(); // inefficient, but works
+        document.getElementById("show-search").value = ""; // reset search input text
         renderShows();
     });
 }
@@ -84,7 +86,9 @@ async function displayEpisodesPage(showId, showName) {
     const episodesHeading = document.getElementById("episodes-heading");
     episodesHeading.textContent = showName;
     const episodes = await getShowEpisodes(showId);
+    document.getElementById("episode-search").value = ""; // reset search input text
     setupEpisodeSelector(episodes);
+    searchEpisodes(episodes);
     renderEpisodes(episodes);
 }
 
@@ -131,6 +135,7 @@ function renderEpisodes(episodeList) {
     const episodeCards = createEpisodeCards(episodeList);
     const episodeContainer = document.getElementById("episode-cards");
     episodeContainer.replaceChildren(...episodeCards);
+    // searchEpisodes(episodeList);
 
     // toggle hidden
     changeVisibility("episode");
@@ -177,10 +182,25 @@ function setupEpisodeSelector(episodeList) {
             const filtered = episodeList.filter(
                 (ep) => ep.id === Number(e.target.value),
             );
-            console.log(filtered);
             renderEpisodes(filtered);
         }
     });
+}
+
+function searchEpisodes(episodeList) {
+    const searchEpisodesInput = document.getElementById("episode-search");
+
+    // instead of addListener to avoid listener stacking
+    searchEpisodesInput.oninput = (e) => {
+        const searchStr = e.target.value.toLowerCase();
+        const filtered = episodeList.filter(
+            (ep) =>
+                ep.name.toLowerCase().includes(searchStr) ||
+                ep.summary.toLowerCase().includes(searchStr),
+        );
+
+        renderEpisodes(filtered);
+    };
 }
 
 /*
