@@ -21,31 +21,40 @@
             <h2 id="fetch-status">Loading...</h2>
             <div
                 id="show-controls"
-                class="controls"
                 role="group"
                 aria-label="Show selection and search">
-                <select name="show-selector" id="show-selector"></select>
-                <div id="show-search-container">
-                    <label for="show-search">Search shows: </label>
-                    <input type="search" name="show-search" id="show-search" />
-                    <span id="show-result-count" aria-live="polite"></span>
+                <!-- need this wrapper div, can't set outer div to flex, grid etc. -->
+                <div class="controls">
+                    <select name="show-selector" id="show-selector"></select>
+                    <div id="show-search-container">
+                        <label for="show-search">Search shows: </label>
+                        <input
+                            type="search"
+                            name="show-search"
+                            id="show-search" />
+                        <span id="show-result-count" aria-live="polite"></span>
+                    </div>
                 </div>
             </div>
             <div
                 id="episode-controls"
-                class="controls hidden"
+                class="hidden"
                 role="group"
                 aria-label="Episode selection and search">
-                <select name="episode-selector" id="episode-selector"></select>
-                <div id="episode-search-container">
-                    <label for="episode-search">Search episodes: </label>
-                    <input
-                        type="search"
-                        name="episode-search"
-                        id="episode-search" />
-                    <span id="episode-count" aria-live="polite"></span>
+                <div class="controls">
+                    <select
+                        name="episode-selector"
+                        id="episode-selector"></select>
+                    <div id="episode-search-container">
+                        <label for="episode-search">Search episodes: </label>
+                        <input
+                            type="search"
+                            name="episode-search"
+                            id="episode-search" />
+                        <span id="episode-count" aria-live="polite"></span>
+                    </div>
+                    <button id="back-to-shows">Back to shows</button>
                 </div>
-                <button id="back-to-shows">Back to shows</button>
             </div>
             <div id="show-cards"></div>
             <h1 id="episodes-heading" class="hidden"></h1>

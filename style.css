@@ -21,11 +21,6 @@ header {
     top: 0;
 }
 
-.find-episodes {
-    display: flex;
-    align-items: center;
-}
-
 input,
 select {
     padding: 0.5rem;
@@ -55,6 +50,12 @@ footer > a {
 
 .hidden {
     display: none;
+}
+
+.controls {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
 }
 
 @media (max-width: 600px) {
