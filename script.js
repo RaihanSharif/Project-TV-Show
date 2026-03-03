@@ -18,6 +18,7 @@ async function setup() {
         return;
     }
     setupShowSelector();
+    showSearch();
     renderShows();
 
     const backButton = document.getElementById("back-to-shows");
@@ -60,6 +61,25 @@ function setupShowSelector() {
     });
 }
 
+function showSearch() {
+    const showSearchInput = document.getElementById("show-search");
+    showSearchInput.addEventListener("input", (e) => {
+        const searchStr = e.target.value.toLowerCase();
+        const filtered = state.showCache.filter((show) => {
+            const { name, genres, summary } = show;
+            if (
+                name.toLowerCase().includes(searchStr) ||
+                genres.join(" ").toLowerCase().includes(searchStr) ||
+                summary.toLowerCase().includes(searchStr)
+            ) {
+                return show;
+            }
+        });
+
+        renderShows(filtered);
+    });
+}
+
 async function displayEpisodesPage(showId, showName) {
     const episodesHeading = document.getElementById("episodes-heading");
     episodesHeading.textContent = showName;
@@ -68,11 +88,9 @@ async function displayEpisodesPage(showId, showName) {
     renderEpisodes(episodes);
 }
 
-// TODO: move showContainer.replaceChildren to the initial setup
-// as this really only needs to be done once
-function renderShows() {
+function renderShows(showList = state.showCache) {
     const showContainer = document.getElementById("show-cards");
-    showContainer.replaceChildren(...createShowCards());
+    showContainer.replaceChildren(...createShowCards(showList));
     changeVisibility("show");
 }
 
