@@ -19,6 +19,11 @@ async function setup() {
     }
     setupShowSelector();
     renderShows();
+
+    const backButton = document.getElementById("back-to-shows");
+    backButton.addEventListener("click", () => {
+        renderShows();
+    });
 }
 
 // fetch episodes from cache or API, or show error message
