@@ -5,28 +5,40 @@ const state = {
     episodeCache: {},
 };
 
-const fetchStatus = document.getElementById("fetch-status");
+// Store references to frequently used DOM elements
+const elements = {
+    fetchStatus: document.getElementById("fetch-status"),
+
+    showControls: document.getElementById("show-controls"),
+    showSelector: document.getElementById("show-selector"),
+    showSearch: document.getElementById("show-search"),
+    showsCardContainer: document.querySelector(".show-cards"),
+
+    episodeControls: document.getElementById("episode-controls"),
+    episodeSelector: document.getElementById("episode-selector"),
+    episodeSearch: document.getElementById("episode-search"),
+    episodesPageHeading: document.getElementById("episodes-heading"),
+    episodesCardContainer: document.querySelector(".episode-cards"),
+    episodesSearchCount: document.getElementById("episode-count"),
+};
 
 async function setup() {
     // cache shows on initial setup
     try {
         const temp = await fetchShows();
         state.showCache = temp.sort((a, b) => a.name.localeCompare(b.name));
-        fetchStatus.textContent = "";
+        elements.fetchStatus.textContent = "";
     } catch (error) {
-        fetchStatus.textContent = error.message;
+        elements.fetchStatus.textContent = error.message;
         return;
     }
-    setupShowSelector();
-    showSearch();
-    renderShows();
 
-    const backButton = document.getElementById("back-to-shows");
-    backButton.addEventListener("click", () => {
-        setupShowSelector(); // inefficient, but works
-        document.getElementById("show-search").value = ""; // reset search input text
-        renderShows();
-    });
+    // set up shows controls and back button once on page load
+    populateShowSelector();
+    initShowSelectorListener();
+    searchShows();
+    navigateToShowsPage();
+    initBacktoShowsBtn();
 }
 
 // fetch episodes from cache or API, or show error message
@@ -34,14 +46,37 @@ async function getShowEpisodes(showId) {
     try {
         return (state.episodeCache[showId] ??= await fetchEpisodes(showId));
     } catch (error) {
-        fetchStatus.textContent = error.message;
+        elements.fetchStatus.textContent = error.message;
     }
 }
 
-// show selector only needs to be set up once
-// if default -- SELECT A SHOW -- is picked
-function setupShowSelector() {
-    const showSelector = document.getElementById("show-selector");
+function navigateToShowsPage() {
+    elements.showSelector.value = "";
+    elements.showSearch.value = "";
+    showShowsPage(); // removes hidden class from show elements
+    renderShows();
+}
+
+async function navigateToEpisodesPage(showId, showName) {
+    elements.episodeSelector.value = "";
+    elements.episodeSearch.value = "";
+    elements.episodesPageHeading.textContent = showName;
+
+    const episodes = await getShowEpisodes(showId);
+
+    // exit if no episodes loaded
+    if (!episodes) {
+        return;
+    }
+
+    showEpisodesPage(); // removes hidden class from episode elements
+    populateEpisodeSelector(episodes);
+    initEpisodeSelectListener(episodes);
+    searchEpisodes(episodes);
+    renderEpisodes(episodes);
+}
+
+function populateShowSelector() {
     const defaultOpt = document.createElement("option");
     defaultOpt.selected = true;
     defaultOpt.textContent = "-- SELECT A SHOW --";
@@ -54,18 +89,22 @@ function setupShowSelector() {
         opt.value = sh.id;
         return opt;
     });
-    showSelector.replaceChildren(defaultOpt, ...showOpts);
 
-    showSelector.addEventListener("change", (e) => {
-        const name = showSelector.options[showSelector.selectedIndex].text;
-        displayEpisodesPage(e.target.value, name);
+    elements.showSelector.replaceChildren(defaultOpt, ...showOpts);
+}
+
+function initShowSelectorListener() {
+    elements.showSelector.addEventListener("change", (e) => {
+        const name =
+            elements.showSelector.options[elements.showSelector.selectedIndex]
+                .text;
+        navigateToEpisodesPage(e.target.value, name);
     });
 }
 
 // searches across name, summary, and genres
-function showSearch() {
-    const showSearchInput = document.getElementById("show-search");
-    showSearchInput.addEventListener("input", (e) => {
+function searchShows() {
+    elements.showSearch.addEventListener("input", (e) => {
         const searchStr = e.target.value.toLowerCase();
         const filtered = state.showCache.filter((show) => {
             const { name, genres, summary } = show;
@@ -77,34 +116,17 @@ function showSearch() {
                 return show;
             }
         });
-
         renderShows(filtered);
     });
 }
 
-// needed as renderEpisodes cannot cannot populate episode selector
-// and this is used for both show click event and show select event
-async function displayEpisodesPage(showId, showName) {
-    const episodesHeading = document.getElementById("episodes-heading");
-    episodesHeading.textContent = showName;
-    const episodes = await getShowEpisodes(showId);
-    document.getElementById("episode-search").value = ""; // reset search input text
-    setupEpisodeSelector(episodes);
-    searchEpisodes(episodes);
-    renderEpisodes(episodes);
-}
-
-// creates show cards from supplied show list, or from cache
-// and attaches to show container, hides episode container
+// attaches show cards to show card cotainer
 function renderShows(showList = state.showCache) {
-    const showContainer = document.getElementById("show-cards");
-    showContainer.replaceChildren(...createShowCards(showList));
-    changeVisibility("show");
+    elements.showsCardContainer.replaceChildren(...createShowCards(showList));
 }
 
-// takes list of shows and creates show cards
-// show cards call display Episode when heading is clicked
-// would be more efficent to use event delegation/bubbling
+// creates show cards, and attaches listener to each show
+//TODO: use event delegation
 function createShowCards(showList = state.showCache) {
     const showTemplate = document.getElementById("show-template");
     const cards = showList.map((sh) => {
@@ -123,24 +145,69 @@ function createShowCards(showList = state.showCache) {
         clone
             .querySelector(".show-name")
             .addEventListener("click", async (e) =>
-                displayEpisodesPage(sh.id, sh.name),
+                navigateToEpisodesPage(sh.id, sh.name),
             );
         return clone;
     });
     return cards;
 }
 
-// takes a list of episodes and creates cards for them,
-// attaches to episodes container
-// sets shows container to invisible
+function populateEpisodeSelector(episodeList) {
+    const defaultOpt = document.createElement("option");
+    defaultOpt.selected = true;
+    defaultOpt.textContent = "-- SELECT AN EPISODE --";
+    defaultOpt.value = "";
+
+    const episodeOpts = episodeList.map((ep) => {
+        const opt = document.createElement("option");
+        opt.textContent = `${seasonEpisodeCode(ep)} - ${ep.name}`;
+        opt.value = ep.id;
+        return opt;
+    });
+
+    elements.episodeSelector.replaceChildren(defaultOpt, ...episodeOpts);
+}
+
+function initEpisodeSelectListener(episodeList) {
+    elements.episodeSelector.onchange = (e) => {
+        const val = e.target.value;
+
+        if (val === "") {
+            renderEpisodes(episodeList);
+        } else {
+            const filtered = episodeList.filter(
+                (ep) => ep.id === Number(e.target.value),
+            );
+            renderEpisodes(filtered);
+        }
+    };
+}
+
+// searches name and summary of episode for matching string
+function searchEpisodes(episodeList) {
+    // instead of addListener to avoid listener stacking
+    elements.episodeSearch.oninput = (e) => {
+        const searchStr = e.target.value.toLowerCase();
+        const filtered = episodeList.filter(
+            (ep) =>
+                ep.name.toLowerCase().includes(searchStr) ||
+                ep.summary.toLowerCase().includes(searchStr),
+        );
+
+        renderEpisodes(filtered);
+
+        // count string "disappears" if input box is empty
+        if (searchStr.length > 0) {
+            elements.episodesSearchCount.textContent = `${filtered.length}/${episodeList.length} results`;
+        } else {
+            elements.episodesSearchCount.textContent = "";
+        }
+    };
+}
+
 function renderEpisodes(episodeList) {
     const episodeCards = createEpisodeCards(episodeList);
-    const episodeContainer = document.getElementById("episode-cards");
-    episodeContainer.replaceChildren(...episodeCards);
-    // searchEpisodes(episodeList);
-
-    // hides shows Container, displays episodes container
-    changeVisibility("episode");
+    elements.episodesCardContainer.replaceChildren(...episodeCards);
 }
 
 function createEpisodeCards(episodeList) {
@@ -159,60 +226,11 @@ function createEpisodeCards(episodeList) {
     return cards;
 }
 
-// populate episode select options. Add Event Listener
-// which filters out all episdes other than the selected one
-// and renders it.
-function setupEpisodeSelector(episodeList) {
-    const episodeSelector = document.getElementById("episode-selector");
-    const defaultOpt = document.createElement("option");
-    defaultOpt.selected = true;
-    defaultOpt.textContent = "-- SELECT AN EPISODE --";
-    defaultOpt.value = "";
-
-    const episodeOpts = episodeList.map((ep) => {
-        const opt = document.createElement("option");
-        opt.textContent = `${seasonEpisodeCode(ep)} - ${ep.name}`;
-        opt.value = ep.id;
-        return opt;
-    });
-
-    episodeSelector.replaceChildren(defaultOpt, ...episodeOpts);
-
-    episodeSelector.addEventListener("change", (e) => {
-        const val = e.target.value;
-
-        if (val === "") {
-            renderEpisodes(episodeList);
-        } else {
-            const filtered = episodeList.filter(
-                (ep) => ep.id === Number(e.target.value),
-            );
-            renderEpisodes(filtered);
-        }
-    });
-}
-
-// searches name and summary of episode for matching string
-function searchEpisodes(episodeList) {
-    const searchEpisodesInput = document.getElementById("episode-search");
-    const searchCount = document.getElementById("episode-count");
-
-    // instead of addListener to avoid listener stacking
-    searchEpisodesInput.oninput = (e) => {
-        const searchStr = e.target.value.toLowerCase();
-        const filtered = episodeList.filter(
-            (ep) =>
-                ep.name.toLowerCase().includes(searchStr) ||
-                ep.summary.toLowerCase().includes(searchStr),
-        );
-
-        renderEpisodes(filtered);
-        if (searchStr.length > 0) {
-            searchCount.textContent = `${filtered.length}/${episodeList.length} results`;
-        } else {
-            searchCount.textContent = "";
-        }
-    };
+// navigates from episodes page to shows page
+function initBacktoShowsBtn() {
+    document
+        .getElementById("back-to-shows")
+        .addEventListener("click", navigateToShowsPage);
 }
 
 /*
@@ -231,31 +249,24 @@ function htmlToText(htmlString) {
     return doc.body.textContent;
 }
 
-// input "show" | "episode"
 // toggles visibility of show/epsiode
-function changeVisibility(type) {
-    const showControls = document.getElementById("show-controls");
-    const showContainer = document.getElementById("show-cards-wrapper");
+const hide = (el) => el.classList.add("hidden");
+const show = (el) => el.classList.remove("hidden");
 
-    const episodeControls = document.getElementById("episode-controls");
-    const episodeContainer = document.getElementById("episode-cards-wrapper");
-    const episodeHeading = document.getElementById("episodes-heading");
+function showShowsPage() {
+    show(elements.showControls);
+    show(elements.showsCardContainer);
+    hide(elements.episodesCardContainer);
+    hide(elements.episodeControls);
+    hide(elements.episodesPageHeading);
+}
 
-    if (type === "show") {
-        showControls.classList.remove("hidden");
-        showContainer.classList.remove("hidden");
-
-        episodeContainer.classList.add("hidden");
-        episodeControls.classList.add("hidden");
-        episodeHeading.classList.add("hidden");
-    } else {
-        showControls.classList.add("hidden");
-        showContainer.classList.add("hidden");
-
-        episodeContainer.classList.remove("hidden");
-        episodeControls.classList.remove("hidden");
-        episodeHeading.classList.remove("hidden");
-    }
+function showEpisodesPage() {
+    hide(elements.showControls);
+    hide(elements.showsCardContainer);
+    show(elements.episodesCardContainer);
+    show(elements.episodeControls);
+    show(elements.episodesPageHeading);
 }
 
 window.onload = setup;

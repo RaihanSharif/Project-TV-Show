@@ -51,14 +51,21 @@ footer > a {
     font-weight: bold;
 }
 
-.hidden {
-    display: none;
-}
-
 .controls {
     display: flex;
     gap: 1rem;
     flex-wrap: wrap;
+}
+
+.show-cards,
+.episode-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.hidden {
+    display: none;
 }
 
 /* 
@@ -66,12 +73,6 @@ footer > a {
 Show card styles
 ------
 */
-#show-cards,
-#episode-cards {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-}
 
 .show-card {
     display: grid;
