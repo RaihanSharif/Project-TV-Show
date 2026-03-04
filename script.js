@@ -5,8 +5,6 @@ const state = {
     episodeCache: {},
 };
 
-const fetchStatus = document.getElementById("fetch-status");
-
 // Store references to frequently used DOM elements
 const elements = {
     fetchStatus: document.getElementById("fetch-status"),
@@ -21,6 +19,7 @@ const elements = {
     episodeSearch: document.getElementById("episode-search"),
     episodesPageHeading: document.getElementById("episodes-heading"),
     episodesCardContainer: document.querySelector(".episode-cards"),
+    episodesSearchCount: document.getElementById("episode-count"),
 };
 
 async function setup() {
@@ -28,12 +27,13 @@ async function setup() {
     try {
         const temp = await fetchShows();
         state.showCache = temp.sort((a, b) => a.name.localeCompare(b.name));
-        fetchStatus.textContent = "";
+        elements.fetchStatus.textContent = "";
     } catch (error) {
-        fetchStatus.textContent = error.message;
+        elements.fetchStatus.textContent = error.message;
         return;
     }
 
+    // set up shows controls and back button once on page load
     populateShowSelector();
     initShowSelectorListener();
     searchShows();
@@ -46,8 +46,34 @@ async function getShowEpisodes(showId) {
     try {
         return (state.episodeCache[showId] ??= await fetchEpisodes(showId));
     } catch (error) {
-        fetchStatus.textContent = error.message;
+        elements.fetchStatus.textContent = error.message;
     }
+}
+
+function navigateToShowsPage() {
+    elements.showSelector.value = "";
+    elements.showSearch.value = "";
+    showShowsPage(); // removes hidden class from show elements
+    renderShows();
+}
+
+async function navigateToEpisodesPage(showId, showName) {
+    elements.episodeSelector.value = "";
+    elements.episodeSearch.value = "";
+    elements.episodesPageHeading.textContent = showName;
+
+    const episodes = await getShowEpisodes(showId);
+
+    // exit if no episodes loaded
+    if (!episodes) {
+        return;
+    }
+
+    showEpisodesPage(); // removes hidden class from episode elements
+    populateEpisodeSelector(episodes);
+    initEpisodeSelectListener(episodes);
+    searchEpisodes(episodes);
+    renderEpisodes(episodes);
 }
 
 function populateShowSelector() {
@@ -76,25 +102,6 @@ function initShowSelectorListener() {
     });
 }
 
-function navigateToShowsPage() {
-    elements.showSelector.value = "";
-    elements.showSearch.value = "";
-    changeVisibility("show");
-    renderShows();
-}
-
-async function navigateToEpisodesPage(showId, showName) {
-    elements.episodeSelector.value = "";
-    elements.episodeSearch.value = "";
-    elements.episodesPageHeading.textContent = showName;
-    const episodes = await getShowEpisodes(showId);
-    changeVisibility("episode");
-    populateEpisodeSelector(episodes);
-    initEpisodeSelectListener(episodes);
-    searchEpisodes(episodes);
-    renderEpisodes(episodes);
-}
-
 // searches across name, summary, and genres
 function searchShows() {
     elements.showSearch.addEventListener("input", (e) => {
@@ -109,20 +116,17 @@ function searchShows() {
                 return show;
             }
         });
-
         renderShows(filtered);
     });
 }
 
-// creates show cards from supplied show list, or from cache
-// and attaches to show container, hides episode container
+// attaches show cards to show card cotainer
 function renderShows(showList = state.showCache) {
     elements.showsCardContainer.replaceChildren(...createShowCards(showList));
 }
 
-// takes list of shows and creates show cards
-// show cards call display Episode when heading is clicked
-// would be more efficent to use event delegation/bubbling
+// creates show cards, and attaches listener to each show
+//TODO: use event delegation
 function createShowCards(showList = state.showCache) {
     const showTemplate = document.getElementById("show-template");
     const cards = showList.map((sh) => {
@@ -143,30 +147,6 @@ function createShowCards(showList = state.showCache) {
             .addEventListener("click", async (e) =>
                 navigateToEpisodesPage(sh.id, sh.name),
             );
-        return clone;
-    });
-    return cards;
-}
-
-// takes a list of episodes and creates cards for them,
-// attaches to episodes container
-// sets shows container to invisible
-function renderEpisodes(episodeList) {
-    const episodeCards = createEpisodeCards(episodeList);
-    elements.episodesCardContainer.replaceChildren(...episodeCards);
-}
-
-function createEpisodeCards(episodeList) {
-    const episodeTemplate = document.getElementById("episode-template");
-    const cards = episodeList.map((ep) => {
-        const clone = episodeTemplate.content.cloneNode(true);
-        clone.querySelector(".episode-name").textContent =
-            `${ep.name} - ${seasonEpisodeCode(ep)}`;
-        clone.querySelector(".episode-img").src = ep.image?.medium;
-        clone.querySelector(".episode-img").alt = ep.name;
-        clone.querySelector(".episode-summary").textContent = htmlToText(
-            ep.summary,
-        );
         return clone;
     });
     return cards;
@@ -205,11 +185,8 @@ function initEpisodeSelectListener(episodeList) {
 
 // searches name and summary of episode for matching string
 function searchEpisodes(episodeList) {
-    const searchEpisodesInput = document.getElementById("episode-search");
-    const searchCount = document.getElementById("episode-count");
-
     // instead of addListener to avoid listener stacking
-    searchEpisodesInput.oninput = (e) => {
+    elements.episodeSearch.oninput = (e) => {
         const searchStr = e.target.value.toLowerCase();
         const filtered = episodeList.filter(
             (ep) =>
@@ -218,19 +195,42 @@ function searchEpisodes(episodeList) {
         );
 
         renderEpisodes(filtered);
+
+        // count string "disappears" if input box is empty
         if (searchStr.length > 0) {
-            searchCount.textContent = `${filtered.length}/${episodeList.length} results`;
+            elements.episodesSearchCount.textContent = `${filtered.length}/${episodeList.length} results`;
         } else {
-            searchCount.textContent = "";
+            elements.episodesSearchCount.textContent = "";
         }
     };
 }
 
-function initBacktoShowsBtn() {
-    const backButton = document.getElementById("back-to-shows");
-    backButton.addEventListener("click", () => {
-        navigateToShowsPage();
+function renderEpisodes(episodeList) {
+    const episodeCards = createEpisodeCards(episodeList);
+    elements.episodesCardContainer.replaceChildren(...episodeCards);
+}
+
+function createEpisodeCards(episodeList) {
+    const episodeTemplate = document.getElementById("episode-template");
+    const cards = episodeList.map((ep) => {
+        const clone = episodeTemplate.content.cloneNode(true);
+        clone.querySelector(".episode-name").textContent =
+            `${ep.name} - ${seasonEpisodeCode(ep)}`;
+        clone.querySelector(".episode-img").src = ep.image?.medium;
+        clone.querySelector(".episode-img").alt = ep.name;
+        clone.querySelector(".episode-summary").textContent = htmlToText(
+            ep.summary,
+        );
+        return clone;
     });
+    return cards;
+}
+
+// navigates from episodes page to shows page
+function initBacktoShowsBtn() {
+    document
+        .getElementById("back-to-shows")
+        .addEventListener("click", navigateToShowsPage);
 }
 
 /*
@@ -249,25 +249,24 @@ function htmlToText(htmlString) {
     return doc.body.textContent;
 }
 
-// input "show" | "episode"
 // toggles visibility of show/epsiode
-function changeVisibility(type) {
-    if (type === "show") {
-        elements.showControls.classList.remove("hidden");
-        elements.showsCardContainer.classList.remove("hidden");
+const hide = (el) => el.classList.add("hidden");
+const show = (el) => el.classList.remove("hidden");
 
-        elements.episodesCardContainer.classList.add("hidden");
+function showShowsPage() {
+    show(elements.showControls);
+    show(elements.showsCardContainer);
+    hide(elements.episodesCardContainer);
+    hide(elements.episodeControls);
+    hide(elements.episodesPageHeading);
+}
 
-        elements.episodeControls.classList.add("hidden");
-        elements.episodesPageHeading.classList.add("hidden");
-    } else {
-        elements.showControls.classList.add("hidden");
-        elements.showsCardContainer.classList.add("hidden");
-
-        elements.episodesCardContainer.classList.remove("hidden");
-        elements.episodeControls.classList.remove("hidden");
-        elements.episodesPageHeading.classList.remove("hidden");
-    }
+function showEpisodesPage() {
+    hide(elements.showControls);
+    hide(elements.showsCardContainer);
+    show(elements.episodesCardContainer);
+    show(elements.episodeControls);
+    show(elements.episodesPageHeading);
 }
 
 window.onload = setup;
