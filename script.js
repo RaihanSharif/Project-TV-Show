@@ -7,6 +7,22 @@ const state = {
 
 const fetchStatus = document.getElementById("fetch-status");
 
+// Store references to frequently used DOM elements
+const elements = {
+    fetchStatus: document.getElementById("fetch-status"),
+
+    showControls: document.getElementById("show-controls"),
+    showSelector: document.getElementById("show-selector"),
+    showSearch: document.getElementById("show-search"),
+    showsCardContainer: document.querySelector(".show-cards"),
+
+    episodeControls: document.getElementById("episode-controls"),
+    episodeSelector: document.getElementById("episode-selector"),
+    episodeSearch: document.getElementById("episode-search"),
+    episodesPageHeading: document.getElementById("episodes-heading"),
+    episodesCardContainer: document.querySelector(".episode-cards"),
+};
+
 async function setup() {
     // cache shows on initial setup
     try {
@@ -17,9 +33,11 @@ async function setup() {
         fetchStatus.textContent = error.message;
         return;
     }
-    setupShowSelector();
-    showSearch();
-    renderShows();
+
+    populateShowSelector();
+    initShowSelectorListener();
+    searchShows();
+    navigateToShowsPage();
 
     const backButton = document.getElementById("back-to-shows");
     backButton.addEventListener("click", () => {
@@ -38,10 +56,7 @@ async function getShowEpisodes(showId) {
     }
 }
 
-// show selector only needs to be set up once
-// if default -- SELECT A SHOW -- is picked
-function setupShowSelector() {
-    const showSelector = document.getElementById("show-selector");
+function populateShowSelector() {
     const defaultOpt = document.createElement("option");
     defaultOpt.selected = true;
     defaultOpt.textContent = "-- SELECT A SHOW --";
@@ -54,18 +69,39 @@ function setupShowSelector() {
         opt.value = sh.id;
         return opt;
     });
-    showSelector.replaceChildren(defaultOpt, ...showOpts);
 
-    showSelector.addEventListener("change", (e) => {
-        const name = showSelector.options[showSelector.selectedIndex].text;
-        displayEpisodesPage(e.target.value, name);
+    elements.showSelector.replaceChildren(defaultOpt, ...showOpts);
+}
+
+function initShowSelectorListener() {
+    elements.showSelector.addEventListener("change", (e) => {
+        const name =
+            elements.showSelector.options[elements.showSelector.selectedIndex]
+                .text;
+        navigateToEpisodesPage(e.target.value, name);
     });
 }
 
+function navigateToShowsPage() {
+    elements.showSelector.value = "";
+    elements.showSearch.value = "";
+    renderShows();
+}
+
+async function navigateToEpisodesPage(showId, showName) {
+    elements.episodeSelector.value = "";
+    elements.episodeSearch.value = "";
+    elements.episodesPageHeading.textContent = showName;
+    const episodes = await getShowEpisodes(showId);
+    populateEpisodeSelector(episodes);
+    initEpisodeSelectListener(episodes);
+    searchEpisodes(episodes);
+    renderEpisodes(episodes);
+}
+
 // searches across name, summary, and genres
-function showSearch() {
-    const showSearchInput = document.getElementById("show-search");
-    showSearchInput.addEventListener("input", (e) => {
+function searchShows() {
+    elements.showSearch.addEventListener("input", (e) => {
         const searchStr = e.target.value.toLowerCase();
         const filtered = state.showCache.filter((show) => {
             const { name, genres, summary } = show;
@@ -82,23 +118,10 @@ function showSearch() {
     });
 }
 
-// needed as renderEpisodes cannot cannot populate episode selector
-// and this is used for both show click event and show select event
-async function displayEpisodesPage(showId, showName) {
-    const episodesHeading = document.getElementById("episodes-heading");
-    episodesHeading.textContent = showName;
-    const episodes = await getShowEpisodes(showId);
-    document.getElementById("episode-search").value = ""; // reset search input text
-    setupEpisodeSelector(episodes);
-    searchEpisodes(episodes);
-    renderEpisodes(episodes);
-}
-
 // creates show cards from supplied show list, or from cache
 // and attaches to show container, hides episode container
 function renderShows(showList = state.showCache) {
-    const showContainer = document.getElementById("show-cards");
-    showContainer.replaceChildren(...createShowCards(showList));
+    elements.showsCardContainer.replaceChildren(...createShowCards(showList));
     changeVisibility("show");
 }
 
@@ -123,7 +146,7 @@ function createShowCards(showList = state.showCache) {
         clone
             .querySelector(".show-name")
             .addEventListener("click", async (e) =>
-                displayEpisodesPage(sh.id, sh.name),
+                navigateToEpisodesPage(sh.id, sh.name),
             );
         return clone;
     });
@@ -135,9 +158,7 @@ function createShowCards(showList = state.showCache) {
 // sets shows container to invisible
 function renderEpisodes(episodeList) {
     const episodeCards = createEpisodeCards(episodeList);
-    const episodeContainer = document.getElementById("episode-cards");
-    episodeContainer.replaceChildren(...episodeCards);
-    // searchEpisodes(episodeList);
+    elements.episodesCardContainer.replaceChildren(...episodeCards);
 
     // hides shows Container, displays episodes container
     changeVisibility("episode");
@@ -159,11 +180,7 @@ function createEpisodeCards(episodeList) {
     return cards;
 }
 
-// populate episode select options. Add Event Listener
-// which filters out all episdes other than the selected one
-// and renders it.
-function setupEpisodeSelector(episodeList) {
-    const episodeSelector = document.getElementById("episode-selector");
+function populateEpisodeSelector(episodeList) {
     const defaultOpt = document.createElement("option");
     defaultOpt.selected = true;
     defaultOpt.textContent = "-- SELECT AN EPISODE --";
@@ -176,9 +193,11 @@ function setupEpisodeSelector(episodeList) {
         return opt;
     });
 
-    episodeSelector.replaceChildren(defaultOpt, ...episodeOpts);
+    elements.episodeSelector.replaceChildren(defaultOpt, ...episodeOpts);
+}
 
-    episodeSelector.addEventListener("change", (e) => {
+function initEpisodeSelectListener(episodeList) {
+    elements.episodeSelector.onchange = (e) => {
         const val = e.target.value;
 
         if (val === "") {
@@ -189,7 +208,7 @@ function setupEpisodeSelector(episodeList) {
             );
             renderEpisodes(filtered);
         }
-    });
+    };
 }
 
 // searches name and summary of episode for matching string
@@ -234,27 +253,21 @@ function htmlToText(htmlString) {
 // input "show" | "episode"
 // toggles visibility of show/epsiode
 function changeVisibility(type) {
-    const showControls = document.getElementById("show-controls");
-    const showContainer = document.getElementById("show-cards-wrapper");
-
-    const episodeControls = document.getElementById("episode-controls");
-    const episodeContainer = document.getElementById("episode-cards-wrapper");
-    const episodeHeading = document.getElementById("episodes-heading");
-
     if (type === "show") {
-        showControls.classList.remove("hidden");
-        showContainer.classList.remove("hidden");
+        elements.showControls.classList.remove("hidden");
+        elements.showsCardContainer.classList.remove("hidden");
 
-        episodeContainer.classList.add("hidden");
-        episodeControls.classList.add("hidden");
-        episodeHeading.classList.add("hidden");
+        elements.episodesCardContainer.classList.add("hidden");
+
+        elements.episodeControls.classList.add("hidden");
+        elements.episodesPageHeading.classList.add("hidden");
     } else {
-        showControls.classList.add("hidden");
-        showContainer.classList.add("hidden");
+        elements.showControls.classList.add("hidden");
+        elements.showsCardContainer.classList.add("hidden");
 
-        episodeContainer.classList.remove("hidden");
-        episodeControls.classList.remove("hidden");
-        episodeHeading.classList.remove("hidden");
+        elements.episodesCardContainer.classList.remove("hidden");
+        elements.episodeControls.classList.remove("hidden");
+        elements.episodesPageHeading.classList.remove("hidden");
     }
 }
 
