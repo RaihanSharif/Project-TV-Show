@@ -38,13 +38,7 @@ async function setup() {
     initShowSelectorListener();
     searchShows();
     navigateToShowsPage();
-
-    const backButton = document.getElementById("back-to-shows");
-    backButton.addEventListener("click", () => {
-        setupShowSelector(); // inefficient, but works
-        document.getElementById("show-search").value = ""; // reset search input text
-        renderShows();
-    });
+    initBacktoShowsBtn();
 }
 
 // fetch episodes from cache or API, or show error message
@@ -85,6 +79,7 @@ function initShowSelectorListener() {
 function navigateToShowsPage() {
     elements.showSelector.value = "";
     elements.showSearch.value = "";
+    changeVisibility("show");
     renderShows();
 }
 
@@ -93,6 +88,7 @@ async function navigateToEpisodesPage(showId, showName) {
     elements.episodeSearch.value = "";
     elements.episodesPageHeading.textContent = showName;
     const episodes = await getShowEpisodes(showId);
+    changeVisibility("episode");
     populateEpisodeSelector(episodes);
     initEpisodeSelectListener(episodes);
     searchEpisodes(episodes);
@@ -122,7 +118,6 @@ function searchShows() {
 // and attaches to show container, hides episode container
 function renderShows(showList = state.showCache) {
     elements.showsCardContainer.replaceChildren(...createShowCards(showList));
-    changeVisibility("show");
 }
 
 // takes list of shows and creates show cards
@@ -159,9 +154,6 @@ function createShowCards(showList = state.showCache) {
 function renderEpisodes(episodeList) {
     const episodeCards = createEpisodeCards(episodeList);
     elements.episodesCardContainer.replaceChildren(...episodeCards);
-
-    // hides shows Container, displays episodes container
-    changeVisibility("episode");
 }
 
 function createEpisodeCards(episodeList) {
@@ -232,6 +224,13 @@ function searchEpisodes(episodeList) {
             searchCount.textContent = "";
         }
     };
+}
+
+function initBacktoShowsBtn() {
+    const backButton = document.getElementById("back-to-shows");
+    backButton.addEventListener("click", () => {
+        navigateToShowsPage();
+    });
 }
 
 /*
