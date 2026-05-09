@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TV Show Project | SallyMcGrath</title>
+    <link href="style.css" rel="stylesheet" />
+    <link rel="icon" href="/favicon.ico" type="image/x-icon" />
+  </head>
+
+  <body>
+    <header class="container">
+      <h1>TV Show Project</h1>
+      <h2>My Sample Solution</h2>
+    </header>
+    <main id="root" class="grid container"></main>
+    <template id="episode-template">
+      <section data-episode class="card">
+        <h3 class="card__title" data-episode="title">Episode Name Goes Here</h3>
+        <h4 class="card__code" data-episode="code">Episode Code Goes Here</h4>
+        <div class="card__summary" data-episode="summary">
+          Summary Goes Here
+        </div>
+        <img
+          class="card__image"
+          data-episode="image"
+          src=""
+          alt=""
+          height="140"
+          width="250"
+        />
+      </section>
+    </template>
+
+    <footer>
+      <h2>Data originally from <a href="https://tvmaze.com/">TV Maze</a></h2>
+    </footer>
+
+    <!-- Loads a provided function called getAllEpisodes() which returns all episodes -->
+    <script src="episodes.js"></script>
+
+    <!-- Loads YOUR javascript code -->
+    <script src="script.js"></script>
+  </body>
+</html>
