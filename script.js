@@ -28,6 +28,10 @@ function setup() {
 function makePageForEpisodes(episodeList) {
     const rootElem = document.getElementById("root");
     const template = document.getElementById("episode-card-template");
+
+    // clear existing content before appending new
+    rootElem.innerHTML = "";
+
     const allEpisodeCards = episodeList.map((ep) => {
         // strip the <p> tags from the ep.summary to avoid possible security risks
         const cleanSummary = ep.summary.replace(
