@@ -3,6 +3,17 @@ function setup() {
     const allEpisodes = getAllEpisodes();
     const searchInput = document.getElementById("search-input");
     const searchCount = document.getElementById("search-count");
+    const episodeSelect = document.getElementById("episode-select");
+
+    // populate episode selector
+    allEpisodes.forEach((ep) => {
+        const option = document.createElement("option");
+        option.value = ep.id;
+        const seasonStr = String(ep.season).padStart(2, "0");
+        const numberStr = String(ep.number).padStart(2, "0");
+        option.textContent = `S${seasonStr}E${numberStr} - ${ep.name}`;
+        episodeSelect.appendChild(option);
+    });
 
     // initial page load
     makePageForEpisodes(allEpisodes);
