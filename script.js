@@ -19,6 +19,19 @@ function setup() {
     makePageForEpisodes(allEpisodes);
     searchCount.textContent = `Displaying ${allEpisodes.length} / ${allEpisodes.length} episodes`;
 
+    // episode select event listener
+    episodeSelect.addEventListener("change", (e) => {
+        const selectedId = e.target.value;
+        if (selectedId === "all") {
+            makePageForEpisodes(allEpisodes);
+            searchCount.textContent = `Displaying ${allEpisodes.length} / ${allEpisodes.length} episodes`;
+        } else {
+            const selectedEpisode = allEpisodes.find((ep) => ep.id === parseInt(selectedId));
+            makePageForEpisodes([selectedEpisode]);
+            searchCount.textContent = `Displaying 1 / ${allEpisodes.length} episodes`;
+        }
+    });
+
     // live search event listener
     searchInput.addEventListener("input", (e) => {
         const searchTerm = e.target.value.toLowerCase();
