@@ -1,7 +1,28 @@
 //You can edit ALL of the code here
 function setup() {
     const allEpisodes = getAllEpisodes();
+    const searchInput = document.getElementById("search-input");
+    const searchCount = document.getElementById("search-count");
+
+    // initial page load
     makePageForEpisodes(allEpisodes);
+    searchCount.textContent = `Displaying ${allEpisodes.length} / ${allEpisodes.length} episodes`;
+
+    // live search event listener
+    searchInput.addEventListener("input", (e) => {
+        const searchTerm = e.target.value.toLowerCase();
+
+        // filter episodes based on search term
+        const filteredEpisodes = allEpisodes.filter((ep) => {
+            const nameMatch = ep.name.toLowerCase().includes(searchTerm);
+            const summaryMatch = ep.summary.toLowerCase().includes(searchTerm);
+            // return true if either the name or summary matches the search term
+            return nameMatch || summaryMatch;
+        });
+
+        makePageForEpisodes(filteredEpisodes);
+        searchCount.textContent = `Displaying ${filteredEpisodes.length} / ${allEpisodes.length} episodes`;
+    });
 }
 
 function makePageForEpisodes(episodeList) {
