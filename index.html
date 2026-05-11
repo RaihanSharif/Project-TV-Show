@@ -6,10 +6,34 @@
         <title>TV Show Project | Raihan Sharif (RaihanSharif)</title>
         <link href="style.css" rel="stylesheet" />
         <link rel="icon" href="/favicon.ico" type="image/x-icon" />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap"
+            rel="stylesheet" />
     </head>
 
     <body>
-        <div id="root"></div>
+        <header class="search-bar">
+            <select id="episode-select">
+                <option value="all">Show All Episodes</option>
+            </select>
+            <input type="search" id="search-input" placeholder="Search episodes..." />
+            <span id="search-count"></span>
+        </header>
+        <main id="root"></main>
+
+        <template id="episode-card-template">
+            <div class="episode-card">
+                <div class="title-container">
+                    <h2 class="episode-title"></h2>
+                </div>
+                <img class="episode-img" src="" alt="" />
+                <p class="episode-desc"></p>
+            </div>
+        </template>
+        <footer>
+            Episode information from
+            <a href="http://www.tvmaze.com">TVMaze.com</a>
+        </footer>
 
         <!-- Loads a provided function called getAllEpisodes() which returns all episodes -->
         <script src="episodes.js"></script>
