@@ -30,6 +30,8 @@ function setup() {
             makePageForEpisodes([selectedEpisode]);
             searchCount.textContent = `Displaying 1 / ${allEpisodes.length} episodes`;
         }
+        // reset search input when using select
+        searchInput.value = "";
     });
 
     // live search event listener
