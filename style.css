@@ -70,6 +70,7 @@ body {
     flex-wrap: wrap;
 }
 
+#show-select,
 #episode-select,
 #search-input {
     padding: 0.8rem 1rem;
@@ -85,10 +86,12 @@ body {
     box-shadow: rgba(0, 0, 0, 0.05) 1.95px 1.95px 2.6px;
 }
 
+#show-select,
 #episode-select {
     cursor: pointer;
 }
 
+#show-select:focus,
 #episode-select:focus,
 #search-input:focus {
     border-color: #888;
