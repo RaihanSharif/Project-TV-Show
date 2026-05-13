@@ -2,10 +2,17 @@
 import { fetchAllEpisodes } from "./fetchEpisodes.js";
 
 async function setup() {
-    const allEpisodes = await fetchAllEpisodes(82); // call fetch with the id of the show
     const searchInput = document.getElementById("search-input");
     const searchCount = document.getElementById("search-count");
     const episodeSelect = document.getElementById("episode-select");
+    const fetchSatus = document.getElementById("fetch-status");
+    let allEpisodes;
+    try {
+        allEpisodes = await fetchAllEpisodes(82); // call fetch with the id of the show
+        fetchSatus.textContent = "";
+    } catch (error) {
+        fetchSatus.textContent = error.message;
+    }
 
     // populate episode selector
     allEpisodes.forEach((ep) => {
