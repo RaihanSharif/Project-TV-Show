@@ -1,36 +1,77 @@
 //You can edit ALL of the code here
-import { fetchAllEpisodes } from "./fetchEpisodes.js";
+import { fetchShows, fetchAllEpisodes } from "./fetchTVData.js";
 
 async function setup() {
+    const showSelect = document.getElementById("show-select");
     const searchInput = document.getElementById("search-input");
     const searchCount = document.getElementById("search-count");
     const episodeSelect = document.getElementById("episode-select");
     const fetchStatus = document.getElementById("fetch-status");
-    let allEpisodes;
+    let allEpisodes = [];
 
-    // use hidden class to show/hide loading message during data fetching
-    fetchStatus.classList.remove("hidden");
-    try {
-        allEpisodes = await fetchAllEpisodes(82); // call fetch with the id of the show
-        fetchStatus.textContent = "";
-        fetchStatus.classList.add("hidden");
-    } catch (error) {
-        fetchStatus.textContent = error.message;
+    // helper function to load episodes for a selected show and refresh UI
+    async function loadEpisodesForShow(showId) {
+        // use hidden class to show/hide loading message during data fetching
+        fetchStatus.textContent = "Loading episodes...";
+        fetchStatus.classList.remove("hidden");
+        try {
+            allEpisodes = await fetchAllEpisodes(showId); // call fetch with the id of the show
+            fetchStatus.textContent = "";
+            fetchStatus.classList.add("hidden");
+        } catch (error) {
+            fetchStatus.textContent = error.message;
+            allEpisodes = [];
+        }
+
+        // populate episode selector
+        // clear previous options except the default 'Show All Episodes'
+        episodeSelect.innerHTML = '<option value="all">Show All Episodes</option>';
+        allEpisodes.forEach((ep) => {
+            const option = document.createElement("option");
+            option.value = ep.id;
+            const seasonStr = String(ep.season).padStart(2, "0");
+            const numberStr = String(ep.number).padStart(2, "0");
+            option.textContent = `S${seasonStr}E${numberStr} - ${ep.name}`;
+            episodeSelect.appendChild(option);
+        });
+
+        // initial page load and show switch
+        makePageForEpisodes(allEpisodes);
+        searchCount.textContent = `Displaying ${allEpisodes.length} / ${allEpisodes.length} episodes`;
     }
 
-    // populate episode selector
-    allEpisodes.forEach((ep) => {
-        const option = document.createElement("option");
-        option.value = ep.id;
-        const seasonStr = String(ep.season).padStart(2, "0");
-        const numberStr = String(ep.number).padStart(2, "0");
-        option.textContent = `S${seasonStr}E${numberStr} - ${ep.name}`;
-        episodeSelect.appendChild(option);
-    });
+    // fetch and populate available shows on initial load
+    fetchStatus.textContent = "Loading shows...";
+    fetchStatus.classList.remove("hidden");
+    try {
+        const shows = await fetchShows();
+        // Sort shows in alphabetical order, case-insensitive
+        shows.sort((a, b) => (a.name || "").toLowerCase().localeCompare((b.name || "").toLowerCase()));
 
-    // initial page load
-    makePageForEpisodes(allEpisodes);
-    searchCount.textContent = `Displaying ${allEpisodes.length} / ${allEpisodes.length} episodes`;
+        // Populate show selector
+        shows.forEach((show) => {
+            const option = document.createElement("option");
+            option.value = show.id;
+            option.textContent = show.name;
+            showSelect.appendChild(option);
+        });
+
+        // Load episodes for the first show by default
+        if (shows.length > 0) {
+            showSelect.value = String(shows[0].id);
+            await loadEpisodesForShow(shows[0].id);
+        }
+    } catch (error) {
+        fetchStatus.textContent = `Error loading shows: ${error.message}`;
+        return;
+    }
+
+    // event listener for when a user chooses a show
+    showSelect.addEventListener("change", async (e) => {
+        await loadEpisodesForShow(e.target.value);
+        // reset search input when using select
+        searchInput.value = "";
+    });
 
     // episode select event listener
     episodeSelect.addEventListener("change", (e) => {
@@ -40,10 +81,12 @@ async function setup() {
             searchCount.textContent = `Displaying ${allEpisodes.length} / ${allEpisodes.length} episodes`;
         } else {
             const selectedEpisode = allEpisodes.find(
-                (ep) => ep.id === parseInt(selectedId),
+                (ep) => String(ep.id) === selectedId,
             );
-            makePageForEpisodes([selectedEpisode]);
-            searchCount.textContent = `Displaying 1 / ${allEpisodes.length} episodes`;
+            if (selectedEpisode) {
+                makePageForEpisodes([selectedEpisode]);
+                searchCount.textContent = `Displaying 1 / ${allEpisodes.length} episodes`;
+            }
         }
         // reset search input when using select
         searchInput.value = "";
@@ -55,8 +98,9 @@ async function setup() {
 
         // filter episodes based on search term
         const filteredEpisodes = allEpisodes.filter((ep) => {
-            const nameMatch = ep.name.toLowerCase().includes(searchTerm);
-            const summaryMatch = ep.summary.toLowerCase().includes(searchTerm);
+            const nameMatch = ep.name ? ep.name.toLowerCase().includes(searchTerm) : false;
+            // Defensively check summary in case it's null
+            const summaryMatch = ep.summary ? ep.summary.toLowerCase().includes(searchTerm) : false;
             // return true if either the name or summary matches the search term
             return nameMatch || summaryMatch;
         });
@@ -75,13 +119,20 @@ function makePageForEpisodes(episodeList) {
 
     const allEpisodeCards = episodeList.map((ep) => {
         // strip the <p> tags from the ep.summary to avoid possible security risks
-        const cleanSummary = ep.summary.replace(/<[^>]*>/g, "");
+        // handle summary if null
+        const cleanSummary = ep.summary ? ep.summary.replace(/<[^>]*>/g, "") : "";
 
         const clone = template.content.cloneNode(true);
         const title = `${ep.name} - S${String(ep.season).padStart(2, "0")}E${String(ep.number).padStart(2, "0")}`;
         clone.querySelector(".episode-title").textContent = title;
-        clone.querySelector(".episode-img").src = ep.image.medium;
-        clone.querySelector(".episode-img").alt = ep.name;
+        // set image properties if available
+        if (ep.image && ep.image.medium) {
+            clone.querySelector(".episode-img").src = ep.image.medium;
+            clone.querySelector(".episode-img").alt = ep.name;
+            clone.querySelector(".episode-img").style.display = "";
+        } else {
+            clone.querySelector(".episode-img").style.display = "none";
+        }
 
         clone.querySelector(".episode-desc").textContent = cleanSummary;
 
@@ -91,4 +142,5 @@ function makePageForEpisodes(episodeList) {
     rootElem.append(...allEpisodeCards);
 }
 
-window.onload = setup;
+// run setup now since the script has been loaded with defer
+setup();
