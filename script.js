@@ -1,6 +1,8 @@
 //You can edit ALL of the code here
-function setup() {
-    const allEpisodes = getAllEpisodes();
+import { fetchAllEpisodes } from "./fetchEpisodes.js";
+
+async function setup() {
+    const allEpisodes = await fetchAllEpisodes(82); // call fetch with the id of the show
     const searchInput = document.getElementById("search-input");
     const searchCount = document.getElementById("search-count");
     const episodeSelect = document.getElementById("episode-select");
@@ -26,7 +28,9 @@ function setup() {
             makePageForEpisodes(allEpisodes);
             searchCount.textContent = `Displaying ${allEpisodes.length} / ${allEpisodes.length} episodes`;
         } else {
-            const selectedEpisode = allEpisodes.find((ep) => ep.id === parseInt(selectedId));
+            const selectedEpisode = allEpisodes.find(
+                (ep) => ep.id === parseInt(selectedId),
+            );
             makePageForEpisodes([selectedEpisode]);
             searchCount.textContent = `Displaying 1 / ${allEpisodes.length} episodes`;
         }
@@ -60,10 +64,7 @@ function makePageForEpisodes(episodeList) {
 
     const allEpisodeCards = episodeList.map((ep) => {
         // strip the <p> tags from the ep.summary to avoid possible security risks
-        const cleanSummary = ep.summary.replace(
-            /<[^>]*>/g,
-            "",
-        );
+        const cleanSummary = ep.summary.replace(/<[^>]*>/g, "");
 
         const clone = template.content.cloneNode(true);
         const title = `${ep.name} - S${String(ep.season).padStart(2, "0")}E${String(ep.number).padStart(2, "0")}`;

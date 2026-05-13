@@ -9,6 +9,7 @@
         <link
             href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap"
             rel="stylesheet" />
+        <script type="module" src="script.js" defer></script>
     </head>
 
     <body>
@@ -16,7 +17,10 @@
             <select id="episode-select">
                 <option value="all">Show All Episodes</option>
             </select>
-            <input type="search" id="search-input" placeholder="Search episodes..." />
+            <input
+                type="search"
+                id="search-input"
+                placeholder="Search episodes..." />
             <span id="search-count"></span>
         </header>
         <main id="root"></main>
@@ -34,11 +38,5 @@
             Episode information from
             <a href="http://www.tvmaze.com">TVMaze.com</a>
         </footer>
-
-        <!-- Loads a provided function called getAllEpisodes() which returns all episodes -->
-        <script src="episodes.js"></script>
-
-        <!-- Loads YOUR javascript code -->
-        <script src="script.js"></script>
     </body>
 </html>
