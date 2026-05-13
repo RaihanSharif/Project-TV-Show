@@ -5,13 +5,17 @@ async function setup() {
     const searchInput = document.getElementById("search-input");
     const searchCount = document.getElementById("search-count");
     const episodeSelect = document.getElementById("episode-select");
-    const fetchSatus = document.getElementById("fetch-status");
+    const fetchStatus = document.getElementById("fetch-status");
     let allEpisodes;
+
+    // use hidden class to show/hide loading message during data fetching
+    fetchStatus.classList.remove("hidden");
     try {
         allEpisodes = await fetchAllEpisodes(82); // call fetch with the id of the show
-        fetchSatus.textContent = "";
+        fetchStatus.textContent = "";
+        fetchStatus.classList.add("hidden");
     } catch (error) {
-        fetchSatus.textContent = error.message;
+        fetchStatus.textContent = error.message;
     }
 
     // populate episode selector
