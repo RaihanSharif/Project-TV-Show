@@ -1,40 +1,66 @@
 <!doctype html>
 <html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>TV Show Project | Raihan Sharif (RaihanSharif)</title>
+        <link href="style.css" rel="stylesheet" />
+        <link rel="icon" href="/favicon.ico" type="image/x-icon" />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap"
+            rel="stylesheet" />
+        <script type="module" src="script.js" defer></script>
+    </head>
 
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>TV Show Project | Raihan Sharif (RaihanSharif)</title>
-    <link href="style.css" rel="stylesheet" />
-    <link rel="icon" href="/favicon.ico" type="image/x-icon" />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
-    <script type="module" src="script.js" defer></script>
-</head>
+    <body>
+        <header class="search-bar">
+            <select id="show-select" aria-label="Select a TV show"></select>
+            <select id="episode-select">
+                <option value="all">Show All Episodes</option>
+            </select>
+            <input
+                type="search"
+                id="search-input"
+                placeholder="Search episodes..." />
+            <span id="search-count"></span>
+        </header>
+        <h1 id="fetch-status">Loading episodes...</h1>
+        <main id="root"></main>
 
-<body>
-    <header class="search-bar">
-        <select id="show-select" aria-label="Select a TV show"></select>
-        <select id="episode-select">
-            <option value="all">Show All Episodes</option>
-        </select>
-        <input type="search" id="search-input" placeholder="Search episodes..." />
-        <span id="search-count"></span>
-    </header>
-    <h1 id="fetch-status">Loading episodes...</h1>
-    <main id="root"></main>
-    <template id="episode-card-template">
-        <div class="episode-card">
-            <div class="title-container">
-                <h2 class="episode-title"></h2>
+        <!-- Episode card template -->
+        <template id="episode-card-template">
+            <div class="episode-card">
+                <div class="title-container">
+                    <h2 class="episode-title"></h2>
+                </div>
+                <img class="episode-img" src="" alt="" />
+                <p class="episode-desc"></p>
             </div>
-            <img class="episode-img" src="" alt="" />
-            <p class="episode-desc"></p>
-        </div>
-    </template>
-    <footer>
-        Episode information from
-        <a href="http://www.tvmaze.com">TVMaze.com</a>
-    </footer>
-</body>
+        </template>
 
+        <!-- Show card template -->
+        <template id="show-card-template">
+            <article class="show-card">
+                <h2 class="show-name"></h2>
+                <img class="show-img" src="" alt="" />
+                <p class="show-summary"></p>
+                <div>
+                    <dl class="show-facts">
+                        <dt>Genres:</dt>
+                        <dd class="show-genres"></dd>
+                        <dt>Status:</dt>
+                        <dd class="show-status"></dd>
+                        <dt>Rating:</dt>
+                        <dd class="show-rating"></dd>
+                        <dt>Runtime:</dt>
+                        <dd class="show-runtime"></dd>
+                    </dl>
+                </div>
+            </article>
+        </template>
+        <footer>
+            Episode information from
+            <a href="http://www.tvmaze.com">TVMaze.com</a>
+        </footer>
+    </body>
 </html>
