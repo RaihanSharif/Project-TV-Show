@@ -107,8 +107,25 @@ async function loadEpisodesForShow(showId) {
 }
 
 //---------------------
-// show setup code
+// shows setup code
 //---------------------
+function populateShowSelector(shows) {
+    const defaultOpt = document.createElement("option");
+    defaultOpt.selected = true;
+    defaultOpt.textContent = "-- SELECT A SHOW --";
+    defaultOpt.value = "all";
+    defaultOpt.disabled = true;
+
+    const showOpts = shows.map(({ name, id }) => {
+        const opt = document.createElement("option");
+        opt.textContent = name;
+        opt.value = id;
+        return opt;
+    });
+
+    console.log(showOpts);
+    elements.showSelect.replaceChildren(defaultOpt, ...showOpts);
+}
 
 async function setup() {
     // fetch and populate available shows on initial load
@@ -124,12 +141,7 @@ async function setup() {
         );
 
         // Populate show selector
-        shows.forEach((show) => {
-            const option = document.createElement("option");
-            option.value = show.id;
-            option.textContent = show.name;
-            elements.showSelect.appendChild(option);
-        });
+        populateShowSelector(shows);
 
         // Load episodes for the first show by default
         if (shows.length > 0) {
