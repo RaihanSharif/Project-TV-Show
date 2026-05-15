@@ -12,6 +12,10 @@ const elements = {
     episodeSearchCount: document.getElementById("episode-search-count"),
 };
 
+//---------------------------
+// Episode setup and display
+//---------------------------
+
 // given a show id, populates the episodes select element
 function populateEpisodeSelector(episodes) {
     elements.episodeSelect.innerHTML =
@@ -26,6 +30,9 @@ function populateEpisodeSelector(episodes) {
 
         elements.episodeSelect.appendChild(option);
     });
+
+    // question for reviewer: is it better to call the initEpisodeSelectListener
+    // here because I always want the two to be called together
 }
 
 // attach listeners to the episodes select element
@@ -51,30 +58,59 @@ function initEpisodeSelectListener(episodes) {
     });
 }
 
-async function setup() {
-    // helper function to load episodes for a selected show and refresh UI
-    async function loadEpisodesForShow(showId) {
-        let allEpisodes = [];
-        // use hidden class to show/hide loading message during data fetching
-        elements.fetchStatus.textContent = "Loading episodes...";
-        elements.fetchStatus.classList.remove("hidden");
-        try {
-            allEpisodes = await fetchAllEpisodes(showId); // call fetch with the id of the show
-            elements.fetchStatus.textContent = "";
-            elements.fetchStatus.classList.add("hidden");
-        } catch (error) {
-            elements.fetchStatus.textContent = error.message;
-            allEpisodes = [];
-        }
+// updates display of episodes as search input changes
+// searches name and summary of each episode
+function initEpisodeSearchListener(episodes) {
+    elements.episodeSearchInput.addEventListener("input", (e) => {
+        const searchTerm = e.target.value.toLowerCase();
 
-        populateEpisodeSelector(allEpisodes);
-        initEpisodeSelectListener(allEpisodes);
+        // filter episodes based on search term
+        const filteredEpisodes = episodes.filter((ep) => {
+            const nameMatch = ep.name
+                ? ep.name.toLowerCase().includes(searchTerm)
+                : false;
+            // Defensively check summary in case it's null
+            const summaryMatch = ep.summary
+                ? ep.summary.toLowerCase().includes(searchTerm)
+                : false;
+            // return true if either the name or summary matches the search term
+            return nameMatch || summaryMatch;
+        });
 
-        // initial page load and show switch
-        makePageForEpisodes(allEpisodes);
-        elements.episodeSearchCount.textContent = `Displaying ${allEpisodes.length} / ${allEpisodes.length} episodes`;
+        makePageForEpisodes(filteredEpisodes);
+        elements.episodeSearchCount.textContent = `Displaying ${filteredEpisodes.length} / ${episodes.length} episodes`;
+    });
+}
+
+// fetch episodes, populate menu, listeners and display episode cards
+async function loadEpisodesForShow(showId) {
+    let allEpisodes = [];
+    // use hidden class to show/hide loading message during data fetching
+    elements.fetchStatus.textContent = "Loading episodes...";
+    elements.fetchStatus.classList.remove("hidden");
+    try {
+        allEpisodes = await fetchAllEpisodes(showId); // call fetch with the id of the show
+        elements.fetchStatus.textContent = "";
+        elements.fetchStatus.classList.add("hidden");
+    } catch (error) {
+        elements.fetchStatus.textContent = error.message;
+        allEpisodes = [];
     }
 
+    populateEpisodeSelector(allEpisodes);
+    initEpisodeSelectListener(allEpisodes);
+    initEpisodeSearchListener(allEpisodes);
+
+    // initial page load and show switch
+    makePageForEpisodes(allEpisodes);
+    elements.episodeSearchCount.textContent = `Displaying ${allEpisodes.length} / ${allEpisodes.length} episodes`;
+}
+
+//---------------------
+// show setup code
+//---------------------
+
+async function setup() {
     // fetch and populate available shows on initial load
     elements.fetchStatus.textContent = "Loading shows...";
     elements.fetchStatus.classList.remove("hidden");
@@ -110,27 +146,6 @@ async function setup() {
         await loadEpisodesForShow(e.target.value);
         // reset search input when using select
         elements.episodeSearchInput.value = "";
-    });
-
-    // live search event listener
-    elements.episodeSearchInput.addEventListener("input", (e) => {
-        const searchTerm = e.target.value.toLowerCase();
-
-        // filter episodes based on search term
-        const filteredEpisodes = allEpisodes.filter((ep) => {
-            const nameMatch = ep.name
-                ? ep.name.toLowerCase().includes(searchTerm)
-                : false;
-            // Defensively check summary in case it's null
-            const summaryMatch = ep.summary
-                ? ep.summary.toLowerCase().includes(searchTerm)
-                : false;
-            // return true if either the name or summary matches the search term
-            return nameMatch || summaryMatch;
-        });
-
-        makePageForEpisodes(filteredEpisodes);
-        elements.episodeSearchCount.textContent = `Displaying ${filteredEpisodes.length} / ${allEpisodes.length} episodes`;
     });
 }
 
