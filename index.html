@@ -14,20 +14,24 @@
 
     <body>
         <header class="search-bar">
-            <select id="show-select" aria-label="Select a TV show"></select>
-            <select id="episode-select">
-                <option value="all">Show All Episodes</option>
-            </select>
-            <input
-                type="search"
-                id="search-input"
-                placeholder="Search episodes..." />
-            <span id="search-count"></span>
+            <div id="show-menu">
+                <select id="show-select" aria-label="Select a TV show"></select>
+            </div>
+            <div id="episode-menu">
+                <select id="episode-select">
+                    <option value="all">Show All Episodes</option>
+                </select>
+                <input
+                    type="search"
+                    id="episode-search-input"
+                    placeholder="Search episodes..." />
+                <span id="episode-search-count"></span>
+            </div>
         </header>
         <h1 id="fetch-status">Loading episodes...</h1>
 
         <main id="shows-container"></main>
-        <main id="episodes-container" class="hidden"></main>
+        <main id="episodes-container"></main>
 
         <!-- Episode card template -->
         <template id="episode-card-template">

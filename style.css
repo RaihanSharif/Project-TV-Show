@@ -76,7 +76,7 @@ main {
 
 #show-select,
 #episode-select,
-#search-input {
+#episode-search-input {
     padding: 0.8rem 1rem;
     border: 1px solid #ccc;
     border-radius: 8px;

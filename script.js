@@ -2,21 +2,22 @@
 import { fetchShows, fetchAllEpisodes } from "./fetchTVData.js";
 
 const elements = {
-    showSelect: document.getElementById("show-select"),
-    searchInput: document.getElementById("search-input"),
-    searchCount: document.getElementById("search-count"),
-    episodeSelect: document.getElementById("episode-select"),
     fetchStatus: document.getElementById("fetch-status"),
-    episodesContainer: document.getElementById("episodes-container"),
     showsContainer: document.getElementById("shows-container"),
+    showSelect: document.getElementById("show-select"),
+
+    episodesContainer: document.getElementById("episodes-container"),
+    episodeSelect: document.getElementById("episode-select"),
+    episodeSearchInput: document.getElementById("episode-search-input"),
+    episodeSearchCount: document.getElementById("episode-search-count"),
 };
 
 // given a show id, populates the episodes select element
-async function populateEpisodeSelector(showId) {
+function populateEpisodeSelector(episodes) {
     elements.episodeSelect.innerHTML =
         '<option value="all">Show All Episodes</option>';
-    const allEpisodes = await fetchAllEpisodes(showId);
-    allEpisodes.forEach(({ id, season, number, name }) => {
+
+    episodes.forEach(({ id, season, number, name }) => {
         const option = document.createElement("option");
         option.value = id;
         const seasonStr = String(season).padStart(2, "0");
@@ -25,40 +26,35 @@ async function populateEpisodeSelector(showId) {
 
         elements.episodeSelect.appendChild(option);
     });
-
-    // set up the listeners every time the select element is populated
-    initEpisodeSelectListener(showId);
 }
 
 // attach listeners to the episodes select element
-async function initEpisodeSelectListener(showId) {
+function initEpisodeSelectListener(episodes) {
     // TODO: check if listeners should be removed
-    const allEpisodes = await fetchAllEpisodes(showId);
     elements.episodeSelect.addEventListener("change", (e) => {
         const selectedId = e.target.value;
         if (selectedId === "all") {
-            makePageForEpisodes(allEpisodes);
-            elements.searchCount.textContent = `Displaying ${allEpisodes.length} / ${allEpisodes.length} episodes`;
+            makePageForEpisodes(episodes);
+            elements.episodeSearchCount.textContent = `Displaying ${episodes.length} / ${episodes.length} episodes`;
         } else {
-            const selectedEpisode = allEpisodes.find(
+            const selectedEpisode = episodes.find(
                 ({ id }) => String(id) === selectedId,
             );
             if (selectedEpisode) {
                 makePageForEpisodes([selectedEpisode]);
-                elements.searchCount.textContent = `Displaying 1 / ${allEpisodes.length} episodes`;
+                elements.episodeSearchCount.textContent = `Displaying 1 / ${episodes.length} episodes`;
             }
         }
 
         //reset search element when using select
-        elements.searchInput.value = "";
+        elements.episodeSearchInput.value = "";
     });
 }
 
 async function setup() {
-    let allEpisodes = [];
-
     // helper function to load episodes for a selected show and refresh UI
     async function loadEpisodesForShow(showId) {
+        let allEpisodes = [];
         // use hidden class to show/hide loading message during data fetching
         elements.fetchStatus.textContent = "Loading episodes...";
         elements.fetchStatus.classList.remove("hidden");
@@ -71,11 +67,12 @@ async function setup() {
             allEpisodes = [];
         }
 
-        populateEpisodeSelector(showId);
+        populateEpisodeSelector(allEpisodes);
+        initEpisodeSelectListener(allEpisodes);
 
         // initial page load and show switch
         makePageForEpisodes(allEpisodes);
-        elements.searchCount.textContent = `Displaying ${allEpisodes.length} / ${allEpisodes.length} episodes`;
+        elements.episodeSearchCount.textContent = `Displaying ${allEpisodes.length} / ${allEpisodes.length} episodes`;
     }
 
     // fetch and populate available shows on initial load
@@ -112,11 +109,11 @@ async function setup() {
     elements.showSelect.addEventListener("change", async (e) => {
         await loadEpisodesForShow(e.target.value);
         // reset search input when using select
-        elements.searchInput.value = "";
+        elements.episodeSearchInput.value = "";
     });
 
     // live search event listener
-    elements.searchInput.addEventListener("input", (e) => {
+    elements.episodeSearchInput.addEventListener("input", (e) => {
         const searchTerm = e.target.value.toLowerCase();
 
         // filter episodes based on search term
@@ -133,7 +130,7 @@ async function setup() {
         });
 
         makePageForEpisodes(filteredEpisodes);
-        elements.searchCount.textContent = `Displaying ${filteredEpisodes.length} / ${allEpisodes.length} episodes`;
+        elements.episodeSearchCount.textContent = `Displaying ${filteredEpisodes.length} / ${allEpisodes.length} episodes`;
     });
 }
 
