@@ -39,8 +39,9 @@ function populateEpisodeSelector(episodes) {
 
 // attach listeners to the episodes select element
 function initEpisodeSelectListener(episodes) {
-    // TODO: check if listeners should be removed
-    elements.episodeSelect.addEventListener("change", (e) => {
+    // I use onchange instead of addEventListener to stop stacking listeners
+    console.log("adding ep select listeners..");
+    elements.episodeSelect.onchange = (e) => {
         const selectedId = e.target.value;
         if (selectedId === "all") {
             makePageForEpisodes(episodes);
@@ -57,13 +58,14 @@ function initEpisodeSelectListener(episodes) {
 
         //reset search element when using select
         elements.episodeSearchInput.value = "";
-    });
+    };
 }
 
 // updates display of episodes as search input changes
 // searches name and summary of each episode
 function initEpisodeSearchListener(episodes) {
-    elements.episodeSearchInput.addEventListener("input", (e) => {
+    console.log("creating search listener");
+    elements.episodeSearchInput.oninput = (e) => {
         const searchTerm = e.target.value.toLowerCase();
 
         // filter episodes based on search term
@@ -81,7 +83,7 @@ function initEpisodeSearchListener(episodes) {
 
         makePageForEpisodes(filteredEpisodes);
         elements.episodeSearchCount.textContent = `Displaying ${filteredEpisodes.length} / ${episodes.length} episodes`;
-    });
+    };
 }
 
 // fetch episodes, populate menu, listeners and display episode cards
@@ -141,6 +143,7 @@ function initShowSearchListener(shows) {
     // render shows on shows container
 }
 
+// only called on setup
 async function loadShows() {
     let shows = [];
 
