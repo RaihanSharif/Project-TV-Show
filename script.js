@@ -11,6 +11,23 @@ const elements = {
     showsContainer: document.getElementById("shows-container"),
 };
 
+// given a show id, populates the episodes select element
+async function populateEpisodeSelector(showId) {
+    elements.episodeSelect.innerHTML =
+        '<option value="all">Show All Episodes</option>';
+    const allEpisodes = await fetchAllEpisodes(showId);
+    console.log(allEpisodes);
+    allEpisodes.forEach(({ id, season, number, name }) => {
+        const option = document.createElement("option");
+        option.value = id;
+        const seasonStr = String(season).padStart(2, "0");
+        const numberStr = String(number).padStart(2, "0");
+        option.textContent = `S${seasonStr}E${numberStr} - ${name}`;
+
+        elements.episodeSelect.appendChild(option);
+    });
+}
+
 async function setup() {
     let allEpisodes = [];
 
@@ -28,18 +45,7 @@ async function setup() {
             allEpisodes = [];
         }
 
-        // populate episode selector
-        // clear previous options except the default 'Show All Episodes'
-        elements.episodeSelect.innerHTML =
-            '<option value="all">Show All Episodes</option>';
-        allEpisodes.forEach((ep) => {
-            const option = document.createElement("option");
-            option.value = ep.id;
-            const seasonStr = String(ep.season).padStart(2, "0");
-            const numberStr = String(ep.number).padStart(2, "0");
-            option.textContent = `S${seasonStr}E${numberStr} - ${ep.name}`;
-            elements.episodeSelect.appendChild(option);
-        });
+        populateEpisodeSelector(showId);
 
         // initial page load and show switch
         makePageForEpisodes(allEpisodes);
