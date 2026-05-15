@@ -1,126 +1,141 @@
 //You can edit ALL of the code here
 import { fetchShows, fetchAllEpisodes } from "./fetchTVData.js";
 
+const elements = {
+    showSelect: document.getElementById("show-select"),
+    searchInput: document.getElementById("search-input"),
+    searchCount: document.getElementById("search-count"),
+    episodeSelect: document.getElementById("episode-select"),
+    fetchStatus: document.getElementById("fetch-status"),
+    episodesContainer: document.getElementById("episodes-container"),
+    showsContainer: document.getElementById("shows-container"),
+};
+
 async function setup() {
-    const showSelect = document.getElementById("show-select");
-    const searchInput = document.getElementById("search-input");
-    const searchCount = document.getElementById("search-count");
-    const episodeSelect = document.getElementById("episode-select");
-    const fetchStatus = document.getElementById("fetch-status");
     let allEpisodes = [];
 
     // helper function to load episodes for a selected show and refresh UI
     async function loadEpisodesForShow(showId) {
         // use hidden class to show/hide loading message during data fetching
-        fetchStatus.textContent = "Loading episodes...";
-        fetchStatus.classList.remove("hidden");
+        elements.fetchStatus.textContent = "Loading episodes...";
+        elements.fetchStatus.classList.remove("hidden");
         try {
             allEpisodes = await fetchAllEpisodes(showId); // call fetch with the id of the show
-            fetchStatus.textContent = "";
-            fetchStatus.classList.add("hidden");
+            elements.fetchStatus.textContent = "";
+            elements.fetchStatus.classList.add("hidden");
         } catch (error) {
-            fetchStatus.textContent = error.message;
+            elements.fetchStatus.textContent = error.message;
             allEpisodes = [];
         }
 
         // populate episode selector
         // clear previous options except the default 'Show All Episodes'
-        episodeSelect.innerHTML = '<option value="all">Show All Episodes</option>';
+        elements.episodeSelect.innerHTML =
+            '<option value="all">Show All Episodes</option>';
         allEpisodes.forEach((ep) => {
             const option = document.createElement("option");
             option.value = ep.id;
             const seasonStr = String(ep.season).padStart(2, "0");
             const numberStr = String(ep.number).padStart(2, "0");
             option.textContent = `S${seasonStr}E${numberStr} - ${ep.name}`;
-            episodeSelect.appendChild(option);
+            elements.episodeSelect.appendChild(option);
         });
 
         // initial page load and show switch
         makePageForEpisodes(allEpisodes);
-        searchCount.textContent = `Displaying ${allEpisodes.length} / ${allEpisodes.length} episodes`;
+        elements.searchCount.textContent = `Displaying ${allEpisodes.length} / ${allEpisodes.length} episodes`;
     }
 
     // fetch and populate available shows on initial load
-    fetchStatus.textContent = "Loading shows...";
-    fetchStatus.classList.remove("hidden");
+    elements.fetchStatus.textContent = "Loading shows...";
+    elements.fetchStatus.classList.remove("hidden");
     try {
         const shows = await fetchShows();
         // Sort shows in alphabetical order, case-insensitive
-        shows.sort((a, b) => (a.name || "").toLowerCase().localeCompare((b.name || "").toLowerCase()));
+        shows.sort((a, b) =>
+            (a.name || "")
+                .toLowerCase()
+                .localeCompare((b.name || "").toLowerCase()),
+        );
 
         // Populate show selector
         shows.forEach((show) => {
             const option = document.createElement("option");
             option.value = show.id;
             option.textContent = show.name;
-            showSelect.appendChild(option);
+            elements.showSelect.appendChild(option);
         });
 
         // Load episodes for the first show by default
         if (shows.length > 0) {
-            showSelect.value = String(shows[0].id);
+            elements.showSelect.value = String(shows[0].id);
             await loadEpisodesForShow(shows[0].id);
         }
     } catch (error) {
-        fetchStatus.textContent = `Error loading shows: ${error.message}`;
+        elements.fetchStatus.textContent = `Error loading shows: ${error.message}`;
         return;
     }
 
     // event listener for when a user chooses a show
-    showSelect.addEventListener("change", async (e) => {
+    elements.showSelect.addEventListener("change", async (e) => {
         await loadEpisodesForShow(e.target.value);
         // reset search input when using select
-        searchInput.value = "";
+        elements.searchInput.value = "";
     });
 
     // episode select event listener
-    episodeSelect.addEventListener("change", (e) => {
+    elements.episodeSelect.addEventListener("change", (e) => {
         const selectedId = e.target.value;
         if (selectedId === "all") {
             makePageForEpisodes(allEpisodes);
-            searchCount.textContent = `Displaying ${allEpisodes.length} / ${allEpisodes.length} episodes`;
+            elements.searchCount.textContent = `Displaying ${allEpisodes.length} / ${allEpisodes.length} episodes`;
         } else {
             const selectedEpisode = allEpisodes.find(
                 (ep) => String(ep.id) === selectedId,
             );
             if (selectedEpisode) {
                 makePageForEpisodes([selectedEpisode]);
-                searchCount.textContent = `Displaying 1 / ${allEpisodes.length} episodes`;
+                elements.searchCount.textContent = `Displaying 1 / ${allEpisodes.length} episodes`;
             }
         }
         // reset search input when using select
-        searchInput.value = "";
+        elements.searchInput.value = "";
     });
 
     // live search event listener
-    searchInput.addEventListener("input", (e) => {
+    elements.searchInput.addEventListener("input", (e) => {
         const searchTerm = e.target.value.toLowerCase();
 
         // filter episodes based on search term
         const filteredEpisodes = allEpisodes.filter((ep) => {
-            const nameMatch = ep.name ? ep.name.toLowerCase().includes(searchTerm) : false;
+            const nameMatch = ep.name
+                ? ep.name.toLowerCase().includes(searchTerm)
+                : false;
             // Defensively check summary in case it's null
-            const summaryMatch = ep.summary ? ep.summary.toLowerCase().includes(searchTerm) : false;
+            const summaryMatch = ep.summary
+                ? ep.summary.toLowerCase().includes(searchTerm)
+                : false;
             // return true if either the name or summary matches the search term
             return nameMatch || summaryMatch;
         });
 
         makePageForEpisodes(filteredEpisodes);
-        searchCount.textContent = `Displaying ${filteredEpisodes.length} / ${allEpisodes.length} episodes`;
+        elements.searchCount.textContent = `Displaying ${filteredEpisodes.length} / ${allEpisodes.length} episodes`;
     });
 }
 
 function makePageForEpisodes(episodeList) {
-    const rootElem = document.getElementById("root");
     const template = document.getElementById("episode-card-template");
 
     // clear existing content before appending new
-    rootElem.innerHTML = "";
+    elements.episodesContainer.innerHTML = "";
 
     const allEpisodeCards = episodeList.map((ep) => {
         // strip the <p> tags from the ep.summary to avoid possible security risks
         // handle summary if null
-        const cleanSummary = ep.summary ? ep.summary.replace(/<[^>]*>/g, "") : "";
+        const cleanSummary = ep.summary
+            ? ep.summary.replace(/<[^>]*>/g, "")
+            : "";
 
         const clone = template.content.cloneNode(true);
         const title = `${ep.name} - S${String(ep.season).padStart(2, "0")}E${String(ep.number).padStart(2, "0")}`;
@@ -139,7 +154,7 @@ function makePageForEpisodes(episodeList) {
         return clone;
     });
 
-    rootElem.append(...allEpisodeCards);
+    elements.episodesContainer.append(...allEpisodeCards);
 }
 
 // run setup now since the script has been loaded with defer
