@@ -16,7 +16,6 @@ async function populateEpisodeSelector(showId) {
     elements.episodeSelect.innerHTML =
         '<option value="all">Show All Episodes</option>';
     const allEpisodes = await fetchAllEpisodes(showId);
-    console.log(allEpisodes);
     allEpisodes.forEach(({ id, season, number, name }) => {
         const option = document.createElement("option");
         option.value = id;
@@ -25,6 +24,33 @@ async function populateEpisodeSelector(showId) {
         option.textContent = `S${seasonStr}E${numberStr} - ${name}`;
 
         elements.episodeSelect.appendChild(option);
+    });
+
+    // set up the listeners every time the select element is populated
+    initEpisodeSelectListener(showId);
+}
+
+// attach listeners to the episodes select element
+async function initEpisodeSelectListener(showId) {
+    // TODO: check if listeners should be removed
+    const allEpisodes = await fetchAllEpisodes(showId);
+    elements.episodeSelect.addEventListener("change", (e) => {
+        const selectedId = e.target.value;
+        if (selectedId === "all") {
+            makePageForEpisodes(allEpisodes);
+            elements.searchCount.textContent = `Displaying ${allEpisodes.length} / ${allEpisodes.length} episodes`;
+        } else {
+            const selectedEpisode = allEpisodes.find(
+                ({ id }) => String(id) === selectedId,
+            );
+            if (selectedEpisode) {
+                makePageForEpisodes([selectedEpisode]);
+                elements.searchCount.textContent = `Displaying 1 / ${allEpisodes.length} episodes`;
+            }
+        }
+
+        //reset search element when using select
+        elements.searchInput.value = "";
     });
 }
 
@@ -85,25 +111,6 @@ async function setup() {
     // event listener for when a user chooses a show
     elements.showSelect.addEventListener("change", async (e) => {
         await loadEpisodesForShow(e.target.value);
-        // reset search input when using select
-        elements.searchInput.value = "";
-    });
-
-    // episode select event listener
-    elements.episodeSelect.addEventListener("change", (e) => {
-        const selectedId = e.target.value;
-        if (selectedId === "all") {
-            makePageForEpisodes(allEpisodes);
-            elements.searchCount.textContent = `Displaying ${allEpisodes.length} / ${allEpisodes.length} episodes`;
-        } else {
-            const selectedEpisode = allEpisodes.find(
-                (ep) => String(ep.id) === selectedId,
-            );
-            if (selectedEpisode) {
-                makePageForEpisodes([selectedEpisode]);
-                elements.searchCount.textContent = `Displaying 1 / ${allEpisodes.length} episodes`;
-            }
-        }
         // reset search input when using select
         elements.searchInput.value = "";
     });
