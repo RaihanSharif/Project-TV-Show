@@ -45,7 +45,7 @@ body {
     gap: 1rem;
 }
 
-.episode-card>* {
+.episode-card > * {
     padding-left: 1rem;
     padding-right: 1rem;
 }
@@ -70,6 +70,7 @@ body {
     flex-wrap: wrap;
 }
 
+#show-select,
 #episode-select,
 #search-input {
     padding: 0.8rem 1rem;
@@ -78,15 +79,19 @@ body {
     font-family: inherit;
     font-size: 1rem;
     outline: none;
-    transition: box-shadow 0.2s, border-color 0.2s;
+    transition:
+        box-shadow 0.2s,
+        border-color 0.2s;
     background-color: white;
     box-shadow: rgba(0, 0, 0, 0.05) 1.95px 1.95px 2.6px;
 }
 
+#show-select,
 #episode-select {
     cursor: pointer;
 }
 
+#show-select:focus,
 #episode-select:focus,
 #search-input:focus {
     border-color: #888;
@@ -103,4 +108,8 @@ body {
     font-weight: 600;
     color: #444;
     min-width: 200px;
+}
+
+.hidden {
+    display: none;
 }
