@@ -5,7 +5,7 @@ const elements = {
     fetchStatus: document.getElementById("fetch-status"),
     showsContainer: document.getElementById("shows-container"),
     showSelect: document.getElementById("show-select"),
-    showSearch: document.getElementById("show-search-input"),
+    showSearchInput: document.getElementById("show-search-input"),
     showSearchCount: document.getElementById("show-search-count"),
 
     episodesContainer: document.getElementById("episodes-container"),
@@ -13,6 +13,119 @@ const elements = {
     episodeSearchInput: document.getElementById("episode-search-input"),
     episodeSearchCount: document.getElementById("episode-search-count"),
 };
+
+// when switching from episodes page to shows page,
+// just unhide shows elements and hide episodes page
+
+// when switching to episodes page:
+// populate selector, attach listener (this should have been done only once)
+// add new search listener
+
+//---------------------
+// shows setup code
+//---------------------
+
+// add shows to show selector
+function populateShowSelector(shows) {
+    const defaultOpt = document.createElement("option");
+    defaultOpt.selected = true;
+    defaultOpt.textContent = "-- SELECT A SHOW --";
+    defaultOpt.value = "all";
+    defaultOpt.disabled = true;
+
+    const showOpts = shows.map(({ name, id }) => {
+        const opt = document.createElement("option");
+        opt.textContent = name;
+        opt.value = id;
+        return opt;
+    });
+
+    elements.showSelect.replaceChildren(defaultOpt, ...showOpts);
+}
+
+// attach show select listener
+function initShowSelectListener() {
+    elements.showSelect.addEventListener("change", async (e) => {
+        console.log(`Show selected: ${e.target.value}`);
+        await loadEpisodesForShow(e.target.value);
+        elements.episodeSearchInput.value = "";
+    });
+}
+
+function initShowSearchListener(shows) {
+    elements.showSearchInput.addEventListener("input", (e) => {
+        const searchTerm = e.target.value.toLowerCase();
+        const filtered = shows.filter(({ name, summary }) => {
+            const nameMatch = name
+                ? name.toLowerCase().includes(searchTerm)
+                : false;
+            // Defensively check summary in case it's null
+            const summaryMatch = summary
+                ? summary.toLowerCase().includes(searchTerm)
+                : false;
+            // return true if either the name or summary matches the search term
+            return nameMatch || summaryMatch;
+        });
+
+        makePageForShows(filtered);
+        elements.showSearchCount.textContent = `Displaying ${filtered.length} / ${shows.length} shows`;
+    });
+}
+
+function makePageForShows(showList) {
+    const showTemplate = document.getElementById("show-card-template");
+    console.lot;
+    const cards = showList.map((sh) => {
+        const clone = showTemplate.content.cloneNode(true);
+        clone.querySelector(".show-name").textContent = sh.name;
+        clone.querySelector(".show-img").src = sh.image?.medium;
+        clone.querySelector(".show-img").alt = sh.name;
+
+        const cleanSummary = sh.summary
+            ? sh.summary.replace(/<[^>]*>/g, "")
+            : "";
+
+        clone.querySelector(".show-summary").textContent = cleanSummary;
+        clone.querySelector(".show-genres").textContent = sh.genres.join(" | ");
+        clone.querySelector(".show-status").textContent = sh.status;
+        clone.querySelector(".show-rating").textContent = sh.rating.average;
+        clone.querySelector(".show-runtime").textContent = `${sh.runtime} mins`;
+
+        clone
+            .querySelector(".show-name")
+            .addEventListener("click", (e) => loadEpisodesForShow(sh.id));
+        return clone;
+    });
+
+    elements.showsContainer.replaceChildren(...cards);
+}
+
+// only called on setup
+async function loadShows() {
+    let shows = [];
+
+    elements.fetchStatus.textContent = "Loading shows...";
+    elements.fetchStatus.classList.remove("hidden");
+
+    try {
+        shows = await fetchShows();
+        shows.sort((a, b) =>
+            (a.name || "")
+                .toLowerCase()
+                .localeCompare((b.name || "").toLowerCase()),
+        );
+        elements.fetchStatus.textContent = "";
+        elements.fetchStatus.classList.add("hidden");
+        console.log(shows);
+        populateShowSelector(shows);
+        initShowSelectListener();
+        initShowSearchListener(shows);
+        makePageForShows(shows);
+    } catch (error) {
+        elements.fetchStatus.textContent = `Error loading shows: ${error.message}`;
+        return;
+    }
+}
 
 //---------------------------
 // Episode setup and display
@@ -108,64 +221,6 @@ async function loadEpisodesForShow(showId) {
     // initial page load and show switch
     makePageForEpisodes(allEpisodes);
     elements.episodeSearchCount.textContent = `Displaying ${allEpisodes.length} / ${allEpisodes.length} episodes`;
-}
-
-//---------------------
-// shows setup code
-//---------------------
-function populateShowSelector(shows) {
-    const defaultOpt = document.createElement("option");
-    defaultOpt.selected = true;
-    defaultOpt.textContent = "-- SELECT A SHOW --";
-    defaultOpt.value = "all";
-    defaultOpt.disabled = true;
-
-    const showOpts = shows.map(({ name, id }) => {
-        const opt = document.createElement("option");
-        opt.textContent = name;
-        opt.value = id;
-        return opt;
-    });
-
-    elements.showSelect.replaceChildren(defaultOpt, ...showOpts);
-}
-
-function initShowSelectListener() {
-    elements.showSelect.addEventListener("change", async (e) => {
-        console.log(`Show selected: ${e.target.value}`);
-        await loadEpisodesForShow(e.target.value);
-        elements.episodeSearchInput.value = "";
-    });
-}
-
-function initShowSearchListener(shows) {
-    // on change update the shows list
-    // render shows on shows container
-}
-
-// only called on setup
-async function loadShows() {
-    let shows = [];
-
-    elements.fetchStatus.textContent = "Loading shows...";
-    elements.fetchStatus.classList.remove("hidden");
-
-    try {
-        shows = await fetchShows();
-        shows.sort((a, b) =>
-            (a.name || "")
-                .toLowerCase()
-                .localeCompare((b.name || "").toLowerCase()),
-        );
-
-        populateShowSelector(shows);
-        initShowSelectListener();
-        initShowSearchListener();
-        // makePageForShows(shows);
-    } catch (error) {
-        elements.fetchStatus.textContent = `Error loading shows: ${error.message}`;
-        return;
-    }
 }
 
 async function setup() {
