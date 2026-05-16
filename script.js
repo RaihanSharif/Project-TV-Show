@@ -74,6 +74,7 @@ function initShowSelectListener() {
 }
 
 function initShowSearchListener(shows) {
+    elements.showSearchInput.value = "";
     elements.showSearchInput.oninput = (e) => {
         const searchTerm = e.target.value.toLowerCase();
         const filtered = shows.filter(({ name, summary }) => {
