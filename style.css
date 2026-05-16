@@ -77,7 +77,8 @@ main {
 #show-select,
 #episode-select,
 #episode-search-input,
-#show-search-input {
+#show-search-input,
+#back-to-shows-btn {
     padding: 0.8rem 1rem;
     border: 1px solid #ccc;
     border-radius: 8px;
