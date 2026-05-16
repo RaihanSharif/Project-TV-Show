@@ -7,55 +7,18 @@ body {
     font-family: "Inter", sans-serif;
 }
 
-#root {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 1.5rem;
-    max-width: 1400px;
+main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0 1rem;
+    max-width: 1200px;
     margin: 0 auto;
-    padding: 1rem;
-}
-
-@media (max-width: 1000px) {
-    #root {
-        grid-template-columns: repeat(3, 1fr);
-    }
-}
-
-@media (max-width: 768px) {
-    #root {
-        grid-template-columns: repeat(2, 1fr);
-    }
-}
-
-@media (max-width: 480px) {
-    #root {
-        grid-template-columns: 1fr;
-    }
-}
-
-.episode-card {
-    max-width: 400px;
-    display: grid;
-    align-content: start;
-    justify-items: center;
-    background-color: white;
-    border-radius: 10px;
-    box-shadow: rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px;
     gap: 1rem;
 }
 
-.episode-card > * {
-    padding-left: 1rem;
-    padding-right: 1rem;
-}
-
-.title-container {
-    border: 1px solid black;
-    border-radius: 10px;
-    width: 100%;
-    font-size: 0.8rem;
-    text-align: center;
+.hidden {
+    display: none;
 }
 
 /* search and select input bars */
@@ -72,7 +35,9 @@ body {
 
 #show-select,
 #episode-select,
-#search-input {
+#episode-search-input,
+#show-search-input,
+#back-to-shows-btn {
     padding: 0.8rem 1rem;
     border: 1px solid #ccc;
     border-radius: 8px;
@@ -112,4 +77,115 @@ body {
 
 .hidden {
     display: none;
+}
+
+.show-card {
+    display: grid;
+    grid-template-areas:
+        "header header header"
+        "image summary info";
+    grid-template-columns: 200px auto 200px;
+    gap: 1rem;
+    border: 1px solid black;
+    padding: 1rem;
+    background-color: white;
+    box-shadow: 3px 3px 2px rgb(177, 171, 171);
+}
+
+.show-card p {
+    padding: 0 1rem;
+}
+
+.show-name {
+    grid-area: header;
+    margin: 0;
+    cursor: pointer;
+}
+
+.show-name:hover {
+    text-decoration: underline;
+}
+
+.show-img {
+    grid-area: image;
+}
+
+.show-summary {
+    grid-area: summary;
+    margin: 0;
+}
+
+.show-facts {
+    grid-area: info;
+    margin-top: 0;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    row-gap: 0.5rem;
+
+    box-shadow: 2px 2px 2px lightgray;
+}
+
+.show-facts > dt {
+    font-weight: bold;
+}
+.show-facts > dd {
+    margin: 0;
+}
+
+/* episode card styles */
+.episode-card {
+    display: grid;
+    grid-template-areas:
+        "header header"
+        "image summary";
+    grid-template-columns: auto 1fr;
+    gap: 1rem;
+    border: 1px solid black;
+    padding: 0 1rem 1rem;
+    background-color: white;
+    width: 100%;
+}
+
+.title-container {
+    grid-area: header;
+    margin: 0;
+    width: 100%;
+    font-size: 0.8rem;
+    text-align: center;
+}
+
+.episode-img {
+    grid-area: image;
+}
+
+.episode-summary {
+    grid-area: summary;
+    margin: 0;
+}
+
+#ep-page-show-name {
+    text-align: center;
+}
+
+@media (max-width: 1000px) {
+    main {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    main {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 480px) {
+    main {
+        grid-template-columns: 1fr;
+    }
+    .show-card,
+    .episode-card {
+        display: flex;
+        flex-direction: column;
+    }
 }
