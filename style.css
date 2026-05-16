@@ -21,24 +21,6 @@ main {
     display: none;
 }
 
-@media (max-width: 1000px) {
-    main {
-        grid-template-columns: repeat(3, 1fr);
-    }
-}
-
-@media (max-width: 768px) {
-    main {
-        grid-template-columns: repeat(2, 1fr);
-    }
-}
-
-@media (max-width: 480px) {
-    main {
-        grid-template-columns: 1fr;
-    }
-}
-
 /* search and select input bars */
 .search-bar {
     max-width: 1400px;
@@ -183,4 +165,27 @@ main {
 
 #ep-page-show-name {
     text-align: center;
+}
+
+@media (max-width: 1000px) {
+    main {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    main {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 480px) {
+    main {
+        grid-template-columns: 1fr;
+    }
+    .show-card,
+    .episode-card {
+        display: flex;
+        flex-direction: column;
+    }
 }
