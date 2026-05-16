@@ -39,30 +39,6 @@ main {
     }
 }
 
-.episode-card {
-    max-width: 400px;
-    display: grid;
-    align-content: start;
-    justify-items: center;
-    background-color: white;
-    border-radius: 10px;
-    box-shadow: rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px;
-    gap: 1rem;
-}
-
-.episode-card > * {
-    padding-left: 1rem;
-    padding-right: 1rem;
-}
-
-.title-container {
-    border: 1px solid black;
-    border-radius: 10px;
-    width: 100%;
-    font-size: 0.8rem;
-    text-align: center;
-}
-
 /* search and select input bars */
 .search-bar {
     max-width: 1400px;
@@ -171,5 +147,35 @@ main {
     font-weight: bold;
 }
 .show-facts > dd {
+    margin: 0;
+}
+
+/* episode card styles */
+.episode-card {
+    display: grid;
+    grid-template-areas:
+        "header header"
+        "image summary";
+    grid-template-columns: auto 1fr;
+    gap: 1rem;
+    border: 1px solid black;
+    padding: 0 1rem 1rem;
+    background-color: white;
+}
+
+.title-container {
+    grid-area: header;
+    margin: 0;
+    width: 100%;
+    font-size: 0.8rem;
+    text-align: center;
+}
+
+.episode-img {
+    grid-area: image;
+}
+
+.episode-summary {
+    grid-area: summary;
     margin: 0;
 }
