@@ -224,6 +224,7 @@ function initEpisodeSearchListener(episodes) {
 
 // fetch episodes, populate menu, listeners and display episode cards
 async function loadEpisodesForShow(showId) {
+    elements.episodeSearchInput.value = "";
     let allEpisodes = [];
     // use hidden class to show/hide loading message during data fetching
     elements.fetchStatus.textContent = "Loading episodes...";
