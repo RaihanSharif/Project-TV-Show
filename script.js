@@ -254,8 +254,11 @@ async function setup() {
 
 function makePageForEpisodes(episodeList) {
     const template = document.getElementById("episode-card-template");
-
+    const showName = episodeList[0]._links.show.name;
+    console.log(showName);
     // clear existing content before appending new
+    const pageHeadingElem = document.getElementById("ep-page-show-name");
+    pageHeadingElem.textContent = showName;
     elements.episodesContainer.innerHTML = "";
 
     const allEpisodeCards = episodeList.map((ep) => {

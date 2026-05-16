@@ -179,3 +179,7 @@ main {
     grid-area: summary;
     margin: 0;
 }
+
+#ep-page-show-name {
+    text-align: center;
+}
