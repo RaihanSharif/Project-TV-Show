@@ -66,15 +66,15 @@ function populateShowSelector(shows) {
 
 // attach show select listener
 function initShowSelectListener() {
-    elements.showSelect.addEventListener("change", async (e) => {
+    elements.showSelect.onchange = async (e) => {
         console.log(`Show selected: ${e.target.value}`);
         await loadEpisodesForShow(e.target.value);
         elements.episodeSearchInput.value = "";
-    });
+    };
 }
 
 function initShowSearchListener(shows) {
-    elements.showSearchInput.addEventListener("input", (e) => {
+    elements.showSearchInput.oninput = (e) => {
         const searchTerm = e.target.value.toLowerCase();
         const filtered = shows.filter(({ name, summary }) => {
             const nameMatch = name
@@ -90,7 +90,7 @@ function initShowSearchListener(shows) {
 
         makePageForShows(filtered);
         elements.showSearchCount.textContent = `Displaying ${filtered.length} / ${shows.length} shows`;
-    });
+    };
 }
 
 function makePageForShows(showList) {
@@ -247,6 +247,9 @@ async function loadEpisodesForShow(showId) {
 
 async function setup() {
     await loadShows();
+
+    const backBtn = document.getElementById("back-to-shows-btn");
+    backBtn.addEventListener("click", async () => await loadShows());
 }
 
 function makePageForEpisodes(episodeList) {
