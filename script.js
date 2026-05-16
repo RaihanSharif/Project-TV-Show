@@ -7,12 +7,33 @@ const elements = {
     showSelect: document.getElementById("show-select"),
     showSearchInput: document.getElementById("show-search-input"),
     showSearchCount: document.getElementById("show-search-count"),
+    showsMenu: document.getElementById("shows-menu"),
 
     episodesContainer: document.getElementById("episodes-container"),
     episodeSelect: document.getElementById("episode-select"),
     episodeSearchInput: document.getElementById("episode-search-input"),
     episodeSearchCount: document.getElementById("episode-search-count"),
+    episodesMenu: document.getElementById("episodes-menu"),
 };
+
+let currentPage = "shows";
+
+// input "shows" or "episodes"
+function switchPage(switchedTo) {
+    currentPage = switchedTo;
+
+    if (currentPage === "shows") {
+        elements.episodesContainer.classList.add("hidden");
+        elements.episodesMenu.classList.add("hidden");
+        elements.showsContainer.classList.remove("hidden");
+        elements.showsMenu.classList.remove("hidden");
+    } else if (currentPage === "episodes") {
+        elements.episodesContainer.classList.remove("hidden");
+        elements.episodesMenu.classList.remove("hidden");
+        elements.showsContainer.classList.add("hidden");
+        elements.showsMenu.classList.add("hidden");
+    }
+}
 
 // when switching from episodes page to shows page,
 // just unhide shows elements and hide episodes page
@@ -98,6 +119,7 @@ function makePageForShows(showList) {
     });
 
     elements.showsContainer.replaceChildren(...cards);
+    switchPage("shows");
 }
 
 // only called on setup
@@ -258,6 +280,7 @@ function makePageForEpisodes(episodeList) {
     });
 
     elements.episodesContainer.append(...allEpisodeCards);
+    switchPage("episodes");
 }
 
 // run setup now since the script has been loaded with defer
