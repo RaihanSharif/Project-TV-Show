@@ -6,24 +6,17 @@ async function cachedFetch(url) {
         return cache.get(url);
     }
 
-    const promise = fetch(url)
-        .then((response) => {
-            if (!response.ok) {
-                throw new Error(`Could not fetch data: ${response.status}`);
-            }
-            return response.json();
-        })
-        // delete the entry in the cache if if fetch fails
-        // storing the promises instead of the awaited data prevents a race condition
-        // where if a second call to the cache happens while the first is still awaiting fetch
-        // it gets an empty cache and triggers another fetch.
-        // with this setup, the promise is stored straight away.
-        .catch((error) => {
-            cache.delete(url);
-            throw error;
-        });
-
+    const promise = fetch(url).then((response) => {
+        if (!response.ok) {
+            throw new Error(`Could not fetch data: ${response.status}`);
+        }
+        return response.json();
+    });
     cache.set(url, promise);
+
+    promise.catch((error) => {
+        cache.delete(url);
+    });
     return promise;
 }
 
