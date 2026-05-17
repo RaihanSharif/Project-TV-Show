@@ -5,19 +5,13 @@ async function cachedFetch(url) {
     if (cache.has(url)) {
         return cache.get(url);
     }
-
-    const promise = fetch(url).then((response) => {
-        if (!response.ok) {
-            throw new Error(`Could not fetch data: ${response.status}`);
-        }
-        return response.json();
-    });
-    cache.set(url, promise);
-
-    promise.catch((error) => {
-        cache.delete(url);
-    });
-    return promise;
+    const response = await fetch(url);
+    if (!response.ok) {
+        throw Error(`Could not fetch data: ${response.status}`);
+    }
+    const data = await response.json();
+    cache.set(url, data);
+    return data;
 }
 
 // fetch all available shows from the TVMaze API
